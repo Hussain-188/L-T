@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { HiMenu, HiX, HiPlus, HiLogout, HiUser } from 'react-icons/hi';
+import { HiMenu, HiX, HiPlus, HiLogout, HiUser, HiUsers } from 'react-icons/hi';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -28,6 +28,13 @@ export default function Navbar() {
             >
               <HiPlus className="w-4 h-4" />
               Create Post
+            </Link>
+            <Link
+              to="/workspaces"
+              className="flex items-center gap-1 text-white/90 hover:text-white transition-colors text-sm font-medium"
+            >
+              <HiUsers className="w-4 h-4" />
+              Collab
             </Link>
             <Link
               to="/profile"
@@ -63,6 +70,13 @@ export default function Navbar() {
               className="flex items-center gap-2 text-white/90 hover:text-white px-2 py-2 rounded transition-colors"
             >
               <HiPlus className="w-4 h-4" /> Create Post
+            </Link>
+            <Link
+              to="/workspaces"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center gap-2 text-white/90 hover:text-white px-2 py-2 rounded transition-colors"
+            >
+              <HiUsers className="w-4 h-4" /> Collab
             </Link>
             <Link
               to="/profile"

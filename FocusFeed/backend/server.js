@@ -6,6 +6,9 @@ const path = require('path');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 const postRoutes = require('./routes/posts');
+const interestRoutes = require('./routes/interests');
+const feedRoutes = require('./routes/feed');
+const collabRoutes = require('./routes/collab');
 
 const app = express();
 
@@ -23,6 +26,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/interests', interestRoutes);
+app.use('/api/feed', feedRoutes);
+app.use('/api/collab', collabRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

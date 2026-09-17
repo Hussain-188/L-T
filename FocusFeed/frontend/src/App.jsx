@@ -7,6 +7,8 @@ import Register from './pages/Register';
 import Feed from './pages/Feed';
 import CreatePost from './pages/CreatePost';
 import Profile from './pages/Profile';
+import Workspaces from './pages/Workspaces';
+import WorkspaceDetail from './pages/WorkspaceDetail';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -40,6 +42,8 @@ function AppRoutes() {
           <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
           <Route path="/" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
           <Route path="/create" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
+          <Route path="/workspaces" element={<ProtectedRoute><Workspaces /></ProtectedRoute>} />
+          <Route path="/workspace/:id" element={<ProtectedRoute><WorkspaceDetail /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         </Routes>
       </main>

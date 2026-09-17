@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { HiHeart, HiOutlineHeart, HiChat, HiShare } from 'react-icons/hi';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
+import WhyThisPost from './WhyThisPost';
 
 const CATEGORY_COLORS = {
   Science: 'bg-blue-100 text-blue-700',
@@ -31,7 +32,7 @@ function timeAgo(dateStr) {
   return new Date(dateStr).toLocaleDateString();
 }
 
-export default function PostCard({ post, currentUserId, onUpdate }) {
+export default function PostCard({ post, currentUserId, onUpdate, showExplain }) {
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [likeCount, setLikeCount] = useState(post.likes?.length || 0);
@@ -127,6 +128,11 @@ export default function PostCard({ post, currentUserId, onUpdate }) {
           <button className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-indigo-500 transition-colors cursor-pointer">
             <HiShare className="w-5 h-5" />
           </button>
+          {showExplain && (
+            <div className="ml-auto">
+              <WhyThisPost postId={post._id} breakdown={post._breakdown} />
+            </div>
+          )}
         </div>
       </div>
 

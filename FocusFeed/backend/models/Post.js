@@ -50,7 +50,7 @@ const postSchema = new mongoose.Schema(
     },
     focusType: {
       type: String,
-      enum: ['educational', 'story', 'discussion', 'creative', 'meme', 'news'],
+      enum: ['educational', 'story', 'discussion', 'creative', 'meme', 'news', 'collaborative'],
       default: 'discussion',
     },
     visibility: {
