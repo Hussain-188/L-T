@@ -9,6 +9,7 @@ import CreatePost from './pages/CreatePost';
 import Profile from './pages/Profile';
 import Workspaces from './pages/Workspaces';
 import WorkspaceDetail from './pages/WorkspaceDetail';
+import ModeratorDashboard from './pages/ModeratorDashboard';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -44,6 +45,7 @@ function AppRoutes() {
           <Route path="/create" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
           <Route path="/workspaces" element={<ProtectedRoute><Workspaces /></ProtectedRoute>} />
           <Route path="/workspace/:id" element={<ProtectedRoute><WorkspaceDetail /></ProtectedRoute>} />
+          <Route path="/moderation" element={<ProtectedRoute><ModeratorDashboard /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         </Routes>
       </main>

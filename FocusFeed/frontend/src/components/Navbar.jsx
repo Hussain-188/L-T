@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { HiMenu, HiX, HiPlus, HiLogout, HiUser, HiUsers } from 'react-icons/hi';
+import { HiMenu, HiX, HiPlus, HiLogout, HiUser, HiUsers, HiShieldCheck } from 'react-icons/hi';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -36,6 +36,15 @@ export default function Navbar() {
               <HiUsers className="w-4 h-4" />
               Collab
             </Link>
+            {(user?.role === 'moderator' || user?.role === 'admin') && (
+              <Link
+                to="/moderation"
+                className="flex items-center gap-1 text-white/90 hover:text-white transition-colors text-sm font-medium"
+              >
+                <HiShieldCheck className="w-4 h-4" />
+                Mod
+              </Link>
+            )}
             <Link
               to="/profile"
               className="flex items-center gap-2 text-white/90 hover:text-white transition-colors text-sm"
@@ -78,6 +87,15 @@ export default function Navbar() {
             >
               <HiUsers className="w-4 h-4" /> Collab
             </Link>
+            {(user?.role === 'moderator' || user?.role === 'admin') && (
+              <Link
+                to="/moderation"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 text-white/90 hover:text-white px-2 py-2 rounded transition-colors"
+              >
+                <HiShieldCheck className="w-4 h-4" /> Moderation
+              </Link>
+            )}
             <Link
               to="/profile"
               onClick={() => setMenuOpen(false)}

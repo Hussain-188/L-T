@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { HiHeart, HiOutlineHeart, HiChat, HiShare } from 'react-icons/hi';
+import { HiHeart, HiOutlineHeart, HiChat, HiShare, HiFlag } from 'react-icons/hi';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 import WhyThisPost from './WhyThisPost';
+import ReportModal from './ReportModal';
 
 const CATEGORY_COLORS = {
   Science: 'bg-blue-100 text-blue-700',
@@ -38,6 +39,7 @@ export default function PostCard({ post, currentUserId, onUpdate, showExplain })
   const [likeCount, setLikeCount] = useState(post.likes?.length || 0);
   const [liked, setLiked] = useState(post.likes?.includes(currentUserId));
   const [submitting, setSubmitting] = useState(false);
+  const [showReport, setShowReport] = useState(false);
 
   const handleLike = async () => {
     try {
@@ -104,8 +106,8 @@ export default function PostCard({ post, currentUserId, onUpdate, showExplain })
         )}
 
         {post.isAIGenerated && (
-          <div className="mb-3 inline-flex items-center gap-1 text-xs bg-amber-50 text-amber-700 border border-amber-200 px-2 py-1 rounded-full">
-            <span>🤖</span> AI-Generated Content
+          <div className="mb-3 inline-flex items-center gap-1.5 text-xs bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-1 rounded-full">
+            <span>🤖</span> AI-Generated ({post.aiConfidenceScore}% confidence)
           </div>
         )}
 
@@ -128,6 +130,13 @@ export default function PostCard({ post, currentUserId, onUpdate, showExplain })
           <button className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-indigo-500 transition-colors cursor-pointer">
             <HiShare className="w-5 h-5" />
           </button>
+          <button
+            onClick={() => setShowReport(true)}
+            className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+            title="Report post"
+          >
+            <HiFlag className="w-4 h-4" />
+          </button>
           {showExplain && (
             <div className="ml-auto">
               <WhyThisPost postId={post._id} breakdown={post._breakdown} />
@@ -135,6 +144,10 @@ export default function PostCard({ post, currentUserId, onUpdate, showExplain })
           )}
         </div>
       </div>
+
+      {showReport && (
+        <ReportModal postId={post._id} onClose={() => setShowReport(false)} />
+      )}
 
       {showComments && (
         <div className="bg-gray-50 px-4 py-3 border-t border-gray-100">

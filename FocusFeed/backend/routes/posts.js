@@ -2,13 +2,33 @@ const express = require('express');
 const Post = require('../models/Post');
 const { auth } = require('../middleware/auth');
 const upload = require('../middleware/upload');
+const { checkContent, detectAIContent, logModeration } = require('../services/moderationService');
 
 const router = express.Router();
 
 router.post('/', auth, upload.array('images', 4), async (req, res) => {
   try {
+    if (req.user.isBanned) {
+      return res.status(403).json({ message: 'Your account has been suspended' });
+    }
+
     const { content, category, focusType, visibility } = req.body;
-    const images = req.files ? req.files.map((file) => file.path) : [];
+    const images = req.files ? req.files.map((file) => file.path.replace(/\\/g, '/')) : [];
+
+    const contentCheck = checkContent(content);
+    if (contentCheck.blocked) {
+      return res.status(400).json({
+        message: 'Your post contains content that violates community guidelines',
+        flags: contentCheck.flags,
+      });
+    }
+
+    const aiCheck = detectAIContent(content);
+
+    let moderationStatus = 'approved';
+    if (contentCheck.flags.length > 0) {
+      moderationStatus = 'flagged';
+    }
 
     const post = await Post.create({
       author: req.user._id,
@@ -17,7 +37,17 @@ router.post('/', auth, upload.array('images', 4), async (req, res) => {
       focusType,
       visibility,
       images,
+      isAIGenerated: aiCheck.isAI,
+      aiConfidenceScore: aiCheck.confidence,
+      moderationStatus,
     });
+
+    if (contentCheck.flags.length > 0) {
+      await logModeration('post-flagged', 'post', post._id, null, 'Auto-flagged by content filter', { flags: contentCheck.flags });
+    }
+    if (aiCheck.isAI) {
+      await logModeration('ai-flagged', 'post', post._id, null, 'AI content detected', { confidence: aiCheck.confidence, signals: aiCheck.signals });
+    }
 
     await post.populate('author', 'username displayName avatar');
 
