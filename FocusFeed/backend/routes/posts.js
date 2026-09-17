@@ -3,6 +3,7 @@ const Post = require('../models/Post');
 const { auth } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const { checkContent, detectAIContent, logModeration } = require('../services/moderationService');
+const { getAgeTier } = require('../middleware/childSafety');
 
 const router = express.Router();
 
@@ -12,8 +13,13 @@ router.post('/', auth, upload.array('images', 4), async (req, res) => {
       return res.status(403).json({ message: 'Your account has been suspended' });
     }
 
-    const { content, category, focusType, visibility } = req.body;
+    const { content, category, focusType, visibility, isMature } = req.body;
     const images = req.files ? req.files.map((file) => file.path.replace(/\\/g, '/')) : [];
+
+    const ageTier = getAgeTier(req.user.dateOfBirth);
+    if (ageTier === 'teen' && isMature === 'true') {
+      return res.status(403).json({ message: 'Users under 18 cannot post mature content' });
+    }
 
     const contentCheck = checkContent(content);
     if (contentCheck.blocked) {
@@ -37,6 +43,7 @@ router.post('/', auth, upload.array('images', 4), async (req, res) => {
       focusType,
       visibility,
       images,
+      isMature: isMature === 'true',
       isAIGenerated: aiCheck.isAI,
       aiConfidenceScore: aiCheck.confidence,
       moderationStatus,

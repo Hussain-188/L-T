@@ -70,11 +70,15 @@ function scorePost(post, interestMap, focusMode) {
   return { score, breakdown };
 }
 
-async function getPersonalizedFeed({ userId, interests, focusMode, page = 1, limit = 20, category }) {
+async function getPersonalizedFeed({ userId, interests, focusMode, page = 1, limit = 20, category, ageTier }) {
   const filter = {
     visibility: 'public',
     moderationStatus: 'approved',
   };
+
+  if (ageTier === 'teen') {
+    filter.isMature = { $ne: true };
+  }
 
   if (category && category !== 'All') {
     filter.category = category;

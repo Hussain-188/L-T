@@ -13,7 +13,10 @@ const ALL_INTERESTS = [
 export default function Profile() {
   const { user, updateProfile } = useAuth();
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({ displayName: '', bio: '', interests: [] });
+  const [form, setForm] = useState({
+    displayName: '', bio: '', interests: [],
+    privacySettings: { profileVisibility: 'public', postDefault: 'public', allowDMs: true },
+  });
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -23,6 +26,7 @@ export default function Profile() {
         displayName: user.displayName || '',
         bio: user.bio || '',
         interests: user.interests || [],
+        privacySettings: user.privacySettings || { profileVisibility: 'public', postDefault: 'public', allowDMs: true },
       });
       fetchMyPosts();
     }
@@ -144,6 +148,59 @@ export default function Profile() {
                   ))}
                 </div>
               </div>
+              <div className="border-t border-gray-100 pt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-3">Privacy Settings</label>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Profile Visibility</span>
+                    <select
+                      value={form.privacySettings.profileVisibility}
+                      onChange={(e) => setForm({
+                        ...form,
+                        privacySettings: { ...form.privacySettings, profileVisibility: e.target.value },
+                      })}
+                      className="text-sm px-3 py-1.5 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      <option value="public">Public</option>
+                      <option value="followers">Followers Only</option>
+                      <option value="private">Private</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Default Post Audience</span>
+                    <select
+                      value={form.privacySettings.postDefault}
+                      onChange={(e) => setForm({
+                        ...form,
+                        privacySettings: { ...form.privacySettings, postDefault: e.target.value },
+                      })}
+                      className="text-sm px-3 py-1.5 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      <option value="public">Public</option>
+                      <option value="followers">Followers Only</option>
+                      <option value="private">Private</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Allow Direct Messages</span>
+                    <button
+                      type="button"
+                      onClick={() => setForm({
+                        ...form,
+                        privacySettings: { ...form.privacySettings, allowDMs: !form.privacySettings.allowDMs },
+                      })}
+                      className={`relative w-11 h-6 rounded-full transition-colors cursor-pointer ${
+                        form.privacySettings.allowDMs ? 'bg-indigo-600' : 'bg-gray-300'
+                      }`}
+                    >
+                      <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                        form.privacySettings.allowDMs ? 'left-5.5 translate-x-0' : 'left-0.5'
+                      }`} style={{ left: form.privacySettings.allowDMs ? '22px' : '2px' }} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex gap-3">
                 <button
                   onClick={() => setEditing(false)}

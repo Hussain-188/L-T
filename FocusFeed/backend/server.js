@@ -10,6 +10,7 @@ const interestRoutes = require('./routes/interests');
 const feedRoutes = require('./routes/feed');
 const collabRoutes = require('./routes/collab');
 const moderationRoutes = require('./routes/moderation');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use('/api/interests', interestRoutes);
 app.use('/api/feed', feedRoutes);
 app.use('/api/collab', collabRoutes);
 app.use('/api/moderation', moderationRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

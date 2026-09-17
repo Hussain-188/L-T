@@ -2,6 +2,7 @@ const express = require('express');
 const { auth } = require('../middleware/auth');
 const InterestProfile = require('../models/InterestProfile');
 const { getPersonalizedFeed, explainPost } = require('../services/feedEngine');
+const { getAgeTier } = require('../middleware/childSafety');
 
 const router = express.Router();
 
@@ -21,6 +22,7 @@ router.get('/', auth, async (req, res) => {
       page: parseInt(page),
       limit: parseInt(limit),
       category,
+      ageTier: getAgeTier(req.user.dateOfBirth),
     });
 
     res.json(result);

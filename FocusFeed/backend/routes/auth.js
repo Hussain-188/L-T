@@ -129,6 +129,40 @@ router.put('/profile', auth, async (req, res) => {
   }
 });
 
+router.get('/user/:username', auth, async (req, res) => {
+  try {
+    const target = await User.findOne({ username: req.params.username }).select('-passwordHash');
+    if (!target) return res.status(404).json({ message: 'User not found' });
+
+    const isOwn = target._id.toString() === req.user._id.toString();
+    const isFollower = target.followers?.some((id) => id.toString() === req.user._id.toString());
+
+    if (!isOwn) {
+      const vis = target.privacySettings?.profileVisibility || 'public';
+      if (vis === 'private') {
+        return res.json({
+          _id: target._id,
+          username: target.username,
+          displayName: target.displayName,
+          isPrivate: true,
+        });
+      }
+      if (vis === 'followers' && !isFollower) {
+        return res.json({
+          _id: target._id,
+          username: target.username,
+          displayName: target.displayName,
+          isFollowersOnly: true,
+        });
+      }
+    }
+
+    res.json(target);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 router.post('/follow/:userId', auth, async (req, res) => {
   try {
     const targetUserId = req.params.userId;
