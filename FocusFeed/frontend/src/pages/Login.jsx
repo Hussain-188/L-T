@@ -28,10 +28,15 @@ export default function Login() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
             FocusFeed
           </h1>
-          <p className="text-gray-500 mt-2">Your feed, your way</p>
+          <p className="text-gray-500 mt-2 text-lg">Responsible Social Media Platform</p>
+          <div className="flex flex-wrap justify-center gap-2 mt-4">
+            {['Interest Modes', 'Focus Modes', 'AI Transparency', 'Child Safety', 'Collaborative Creation'].map((f) => (
+              <span key={f} className="text-xs bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full font-medium">{f}</span>
+            ))}
+          </div>
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">

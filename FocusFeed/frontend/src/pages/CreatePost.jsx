@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { HiPhotograph, HiX } from 'react-icons/hi';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
 
 const CATEGORIES = [
   'Science', 'Technology', 'Sports', 'Art', 'Music',
@@ -21,14 +22,17 @@ const FOCUS_TYPES = [
 
 export default function CreatePost() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const fileRef = useRef(null);
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');
   const [focusType, setFocusType] = useState('discussion');
   const [visibility, setVisibility] = useState('public');
+  const [isMature, setIsMature] = useState(false);
   const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [loading, setLoading] = useState(false);
+  const isAdult = user?.ageTier === 'adult';
 
   const handleImageSelect = (e) => {
     const files = Array.from(e.target.files);
@@ -60,6 +64,7 @@ export default function CreatePost() {
       formData.append('category', category);
       formData.append('focusType', focusType);
       formData.append('visibility', visibility);
+      if (isMature) formData.append('isMature', 'true');
       images.forEach((img) => formData.append('images', img));
 
       await api.post('/posts', formData, {
@@ -144,6 +149,24 @@ export default function CreatePost() {
                 ))}
               </div>
             </div>
+
+            {isAdult && (
+              <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                <div>
+                  <p className="text-sm font-medium text-amber-800">Mature Content</p>
+                  <p className="text-xs text-amber-600">Mark if this post contains adult themes. Hidden from users under 18.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsMature(!isMature)}
+                  className={`relative w-11 h-6 rounded-full transition-colors cursor-pointer ${
+                    isMature ? 'bg-amber-500' : 'bg-gray-300'
+                  }`}
+                >
+                  <span className="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform" style={{ left: isMature ? '22px' : '2px' }} />
+                </button>
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Images (max 4)</label>
