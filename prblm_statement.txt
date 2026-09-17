@@ -1,0 +1,326 @@
+Evidence-Grounded Divergence and Convergence Engine for Competing Hypotheses
+AI
+Challenge Statement
+Build a reasoning engine that works in two stages. First, it generates a small set of genuinely different candidate explanations for a problem, plus an explicit "unknown" option. They must differ in the cause proposed, the assumptions made, the evidence required or the effects predicted - not merely in wording. For each one, the engine lists what evidence supports it, what contradicts it, what is missing, and which single test would best separate it from the others. Second, it scores the candidates using a documented method and updates those scores as evidence arrives, without counting two pieces of evidence from the same original source as independent confirmation. The engine must end with one of four outcomes: pick the best-supported explanation, combine compatible ones, recommend a specific test, or openly decline to answer. It must report an honest confidence level and work within a fixed exploration budget with a clear rule for when to stop.
+
+Background
+When a problem is unclear, an AI usually replies with one smooth, confident explanation. Even if you ask for alternatives, it tends to return the same idea reworded. A skilled diagnostician deliberately puts forward genuinely different possible causes, states what each one assumes, looks for evidence that would prove or disprove each, and settles on an answer only when the evidence justifies it. Broadening the search should mean exploring truly different possibilities, not generating more text. Narrowing down should happen because evidence ruled things out, not because one explanation sounded more convincing. The system must also be allowed to keep "none of the above" on the table and to say "I cannot tell yet" when nothing is well supported. A strong reasoning system is one that can explain which options it considered, what evidence changed its mind, what it discarded, and why.
+
+Deliverables
+• A divergence engine producing substantive hypotheses plus unknown or null. • A multi-axis method for measuring hypothesis distinctness. • Structured hypothesis records containing assumptions and predicted effects. • Supporting, contradicting, missing and dependent-evidence handling. • A documented hypothesis-scoring and confidence-update method. • Selection, synthesis, discriminating-test or abstention output. • A fixed branch budget and stopping rule. • Calibration and selective-accuracy evaluation on held-out cases. • Failure tests for duplicate evidence, tied hypotheses and an unlisted cause.
+
+
+Uncertainty-Aware Causal World Model and Intervention Simulation Engine
+AI
+Challenge Statement
+Build an uncertainty-aware causal model of a system, working against a simulator or similar environment where the true outcomes are known. The model should support four clearly separated abilities: predicting the next state from the current one; predicting the next state given a chosen action; estimating what happens under deliberate interventions, where a variable is forced to a value regardless of what would naturally occur; and answering a "what if" question about a recorded episode by changing a past action while keeping that episode's other conditions fixed. The model may be learned, rule-based or a mix, but it must state its assumptions about causes, what can be observed, and randomness. Every prediction must carry an uncertainty range or a probability spread. Teams should compare predictions against actual outcomes, identify the conditions under which the model is unreliable, and demonstrate that a pattern in the data is not being mistaken for genuine cause and effect.
+
+Background
+Predicting what usually happens is very different from predicting what will happen if you deliberately change something. A normal prediction model spots patterns in past data - for example, that ice-cream sales and drowning deaths rise together - without understanding what actually causes what. That is fine for forecasting, but useless the moment someone asks "what happens if we turn this valve down?" or "would the machine still have failed if we had replaced that part last month?" To answer those, a model must represent the real mechanisms of a system: its variables, the actions that can be taken, how one state leads to the next, what can be observed, and how much is genuinely uncertain. The aim is not a general model of the world, but one solid model that predicts, compares deliberate actions, reports honest uncertainty, and answers a "what if we had done it differently" question. Such a question is not just another simulation run - it means re-running the same episode with one action changed while keeping everything else about it the same.
+
+Deliverables
+• A world model implemented against the supplied simulator. • Documented state, action, observation and intervention definitions. • Next-state and action-conditioned predictions. • Predictions for at least two controlled interventions. • One bounded counterfactual with explicit assumptions. • Prediction uncertainty or outcome distributions. • Separate forecasting, action, intervention and counterfactual evaluation. • A calibration or probabilistic-scoring report. • Failure demonstrations for low-data conditions, missing observations and observational-interventional disagreement. • Documentation of unreliable operating regions and model limitations.
+
+
+Efficient and User-Controllable Context Memory for Long-Running Agentic AI
+AI
+Challenge Statement
+Build a context memory system for a long-running AI agent that is both efficient and transparent. The system should decide automatically what must be kept word-for-word, what can be reduced to a short summary, and what can safely be discarded, working across hundreds or thousands of messages spanning many sessions without depending on one specific model. Every such decision must be recorded rather than hidden: the memory should be saved as a chain of versioned steps, each labelled with the topic being worked on, so the user can see what is currently held, trace how the agent's understanding evolved, restart the task from any earlier point, branch off to try a different direction, and merge branches back together. Users should also be able to trim the context down or expand it again by hand, and the system should explain what it kept, what it dropped, and why. Success means a measurable reduction in tokens, cost and response time, with answer quality holding steady or improving, and with the user able to inspect and correct the agent's memory at any point instead of restarting.
+
+Background
+A language model reads everything it is given as "tokens" - roughly, pieces of words - and every token costs money and time. An agent working with the same user over weeks or months builds up a long history of conversations, documents and tool results. Most systems send all of it back to the model every time, making replies slow and expensive, until eventually the history no longer fits the model's context window and material is cut off at random. Shrinking the history is the obvious fix, but cut too much and the agent forgets preferences, drifts from the original objective and answers wrongly. A second problem compounds the first: none of this is visible. Users cannot see what the agent is remembering, cannot tell when it went off track, and can only start again. Combining efficient compression with a visible, versioned history would make long-running agents both affordable and trustworthy.
+
+Deliverables
+A working proof-of-concept demonstrating efficient, user-visible context memory across a long multi-session conversation. Deliverables should include: (1) an architecture covering memory storage, compression, retrieval and context reconstruction; (2) implementation of the versioned context chain with trace-back, restart, branch and merge; (3) an interface for inspecting, trimming and expanding context, with explanations of what was kept or dropped; (4) an evaluation comparing baseline and optimised systems on tokens, cost, latency and answer quality; (5) a demonstration of recovering from drift by returning to an earlier context version.
+
+
+Safe Feedback Driven Continuous Improvement of Agentic AI Systems Without Model Retraining
+AI
+Challenge Statement
+Build a system that lets an AI agent get better with use - without touching or re-training the model itself. Collect feedback in two ways: what users say directly and what users do (accepted the answer, redo of the task, etc). Then use that feedback to update the agent's memory, instructions, tool choices or workflow steps so the next attempt is better. This involves judging the feedback to decide which feedback is genuine and useful, and which is harmful - and reject the bad ones. It must ensure that fixing one task does not break another.
+
+Background
+AI "agents" are software helpers that can plan, use tools and take decisions on their own. When people use them, they naturally say things like "this answer was wrong" or "this was helpful". Today that feedback is mostly thrown away, because the only known way to make the AI better is to re-train the large language model behind it - slow, costly and demanding special hardware. So the agent keeps repeating the same mistakes. There is another way: instead of changing the model, change what surrounds it - its memory, its instructions, the way it picks tools, the steps it follows. But feedback cannot be trusted blindly. Users can be wrong, biased, or contradict each other, and a careless update can leave the agent worse than before.
+
+Deliverables
+Participants are expected to deliver a working proof-of-concept demonstrating feedback-driven improvement of an AI agent over multiple interactions. Deliverables should include: (1) a detailed system architecture describing feedback collection, storage, evaluation, and adaptation mechanisms (2) implementation of one or more feedback learning strategies that do not require model retraining (3) safety mechanisms to detect and prevent performance degradation caused by poor-quality feedback (4) an evaluation framework comparing agent performance before and after feedback incorporation using measurable metrics such as task success rate, accuracy, user satisfaction, latency, and consistency (5) a demonstration showing how the agent progressively improves on representative tasks. Additional consideration will be given to solutions that support autonomous feedback processing, explainability, trustworthiness, multi-user environments, and continuous learning.
+
+
+AI reviewing AI - AI Assisted Continuous Review and Performance Improvement of AI Agents
+AI
+Challenge Statement
+Build a setup where one or more "reviewer" AIs continuously grade another AI agent and suggest improvements. The reviewer should look not only at the final answer but, where possible, at how the agent planned, searched, which tool it chose, whether the task actually finished. Accepted feedback can then be used to improve the agent's instructions, its search strategy, its memory, its workflow, its tool routing or its safety rules. Crucially, the reviewer must not be allowed to change the agent directly. Every suggested change has to pass tests, confidence thresholds and a re-check of older tasks before it is switched on.
+
+Background
+Once an AI agent is running in a real workflow, it needs to be continuously be checked on whether its answers are still correct, relevant, safe and consistent. Normally that checking is done by humans reviewing outputs, or by running a fixed set of test questions. Both are slow, expensive and cannot keep pace with a system that changes every week. An alternative is to use a second AI as the reviewer, reading the first AI's answer, its reasoning steps and the tools it used, then scoring it and suggesting fixes. The catch is that the reviewer is also an AI, so it can be biased, inconsistent, invent criticism, or simply prefer answers written in its own style. Its verdict therefore cannot be treated as the truth and acted on automatically.
+
+Deliverables
+Expected to deliver a working proof of concept demonstrating AI-driven evaluation and controlled improvement of an AI model or agent. Deliverables should include: (1) a system architecture covering the target agent, reviewer models, feedback store, improvement engine, validation gate, monitoring, and rollback (2) implementation of single-reviewer or multi-reviewer evaluation (3) mechanisms for transforming accepted reviews into changes to prompts, retrieval, memory, workflows, tools, or guardrails (4) an evaluation framework comparing baseline and improved performance (5) experiments measuring review accuracy, performance gains, latency, and cost. Teams should submit a report describing methodology, datasets, evaluation criteria, experimental results, reviewer failure modes, limitations, governance requirements, and production recommendations.
+
+
+Unified Multimodal Evidence Representation with Provenance, Temporal Alignment and Conflict Detection
+AI
+Challenge Statement
+Build an engine that reads information arriving in several different forms - such as text, images, tables or sensor readings over time - and turns it into one structured, inspectable picture per case: what is involved, what happened, what was measured, in what units, at what time, and how it all relates. Every fact must be stored with a pointer back to its exact source location, along with when it applies, how confident the system is, and whether it was read directly or worked out. The engine should recognise the same real-world item across different sources even when it is named differently, place events on a shared timeline, and flag a conflict only when two facts genuinely describe the same thing at the same time in comparable terms. Conflicts must stay visible, never averaged away. Teams should check their confidence scores against known answers and show how the engine behaves when a source is missing, a name is ambiguous, units differ, or two sources disagree.
+
+Background
+Real systems produce information in many forms at once: written reports, photographs, tables of readings, and sensor data recorded over time. Most AI tools convert all of this into numeric "embeddings" so it can be searched by similarity. That helps find related content, but it discards information needed in order to trust an answer - which document a fact came from, which exact sentence or table cell, which item it refers to, and at what time. A maintenance report may say a machine ran normally on a particular day while the temperature sensor from that same day shows an overheating spike. A trustworthy system should show both statements and flag the clash, not quietly average them into one meaningless middle value. Linking sources together does not mean squashing everything into a single number - it means connecting them through the same items, events, measurements and timestamps, while every fact still points back to where it came from.
+
+Deliverables
+• A working engine processing text, image and structured or time-series data. • A unified state schema containing entities, events, attributes and temporal context. • A ClaimRecord schema separating extracted and inferred claims. • Claim-level evidence pointers for all supported modalities. • Cross-modal entity linking, timeline alignment and conflict detection. • Confidence reporting with accuracy and calibration evaluation. • An interface for inspecting claims and supporting evidence. • Demonstrations covering missing data, entity ambiguity and cross-modal disagreement.
+
+
+
+Agent Control Tower — Multi-Agent Orchestration Dashboard
+AI
+Challenge Statement
+Build an AI-powered Agent Control Tower that provides real-time orchestration, monitoring, and governance of multiple autonomous AI agents running across an organization. 1. Agents from different frameworks (LangChain, AutoGen, CrewAI) emit logs in inconsistent formats 2. No single pane of glass for agent health, task progress, and cost attribution 3. Human-in-the-loop escalation has no standardized trigger mechanism 4. Agent dependency chains create cascading failures that are hard to trace
+
+Background
+Enterprise teams running multiple AI agents across departments (finance, IT, HR, support) have no unified visibility into agent activity, decisions, failures, or costs. Blind spots lead to runaway costs, silent failures, and compliance risks.
+
+Deliverables
+1. Unified dashboard showing all active agents, their status, tasks, and cost per run 2. Agent lineage graph — visual DAG of agent-to-agent calls and tool usage 3. Anomaly alerts — flag agents consuming excessive tokens, looping, or failing silently 4. Human escalation interface — approve/reject agent decisions in real time 5. Cost attribution — per-agent, per-team, per-task spend breakdown Replay & audit log — step-by-step agent decision trace for compliance
+
+
+
+Cost Optimisation using LLM routing
+AI
+Challenge Statement
+Build a router that sits in front of several language models of differing cost and capability, including at least one running locally, and decides which should handle each incoming request based on how complex the task is and how much reasoning it needs. Where a request has several parts, the router should be able to split it, send each part to the most suitable model, and combine the results into one answer. The goal is a measurable reduction in cost while keeping output quality comparable to always using the strongest model. The router must be transparent and controllable: users or administrators should be able to see which model handled what and why, and be able to override the choice when needed.
+
+Background
+Every request sent to a large language model costs money, charged by the amount of text going in and coming out. As organisations roll out AI across many teams, this bill grows quickly and is becoming a serious concern. Much of the waste comes from using one large, expensive model for everything, including simple jobs such as reformatting a list, extracting a date or classifying a message, which a smaller and cheaper model, or one running on the organisation's own hardware, could handle just as well. The expensive model is genuinely needed only for tasks that require deep reasoning. If a system could assess each incoming request, judge how difficult it really is, and send it to the cheapest model capable of doing it properly, costs could fall sharply with no loss of quality. The difficulty lies in judging correctly: send a hard question to a weak model and the answer is wrong; send an easy one to the strongest model and money is simply wasted.
+
+Deliverables
+transparency and control of LLM routing. trade off balancing system cost vs output quality benchmarking machanism to measure the cost reduction
+
+
+Trust-Aware AI Agents - Confidence Estimation for Reliable Decision Making
+AI
+Challenge Statement
+Build an AI agent that estimates how confident it is in its own answers, reasoning and planned actions - and then acts sensibly on that number. When confidence is high it should just answer. When confidence is low it should do something else: search for more information, run a tool to verify, ask the user a clarifying question, hand over to a specialist agent, or escalate to a human. The confidence score must be explainable - the user should be able to see why the agent was unsure.
+
+Background
+AI systems are now used in places where a wrong decision costs money, breaks equipment or puts people at risk. Language models reason impressively well, but they have one weakness: they do not know when they do not know. They answer a question they have no information about in exactly the same confident tone as one they are sure about. A human expert behaves differently - before acting, they judge how sure they are, and if unsure they look something up, ask a colleague, or escalate. Giving AI that same sense of self-doubt remains an unsolved problem. An agent that could reliably distinguish "I am confident" from "I am guessing" would be far safer to trust with real work.
+
+Deliverables
+Expected to deliver a working proof-of-concept demonstrating confidence aware decision making within an AI agent or multi-agent system. Deliverables should include: (1) A detailed architecture covering confidence estimation, uncertainty detection, verification mechanisms, escalation logic, and monitoring components. (2)Implementation of one or more confidence-scoring approaches. (3)Mechanisms for automated decision routing based on confidence levels. (4)Evaluation comparing traditional agents against confidence-aware agents. Experiments demonstrating reduction in hallucinations, failed decisions, and unnecessary escalations. A live demonstration showing confidence-driven behavior across multiple scenarios.
+
+
+
+AI-Powered Threat Modeling & Security Validation for Embedded Systems
+Cyber Security
+Challenge Statement
+Design an AI-assisted threat modeling & security validation tool that: Automatically identifies attack surfaces from architecture diagrams/code Generates threat models (STRIDE, attack trees) Suggests security test cases and validation strategies
+
+Background
+Security validation in embedded systems is often: Done late in lifecycle Manual and checklist-driven Not continuously updated with evolving threats
+
+Deliverables
+Inputs System architecture diagrams (block diagrams, AUTOSAR XML, etc.) Source code snippets / interfaces Known vulnerability databases (e.g., CWE patterns) Expected Output Auto-generated threat model Risk scoring and mitigation recommendations Security test case suite Evaluation Criteria Completeness of threat identification Relevance to real-world attack scenarios Integration with V&V lifecycle Actionability of recommendations
+
+
+
+Safeguarding Content Rights in the Age of AI-Generated Media
+Cyber Security
+Challenge Statement
+Content teams across an organization now use a wide range of generative models and tools, often without a consistent review gate before publication. Design a solution that assesses a media asset prior to deployment and reports on three aspects/dimension: • Provenance: whether the asset is AI-generated, wholly or partially, including tampering with existing provenance metadata or watermarks. • Rights exposure: likelihood that the asset reproduces copyrighted, trademarked or licensed material, including likeness and voice. • Deployment readiness: conformance to a configurable policy set covering brand, regulatory and regional requirements, with a clear go/no-go, flag or block outcome and the evidence behind it.
+
+Background
+Media and content companies are investing in AI-powered content generation, across AI-generated advertisements, event highlights, localizations, and synthetic image, video and audio assets. This scale of automated production introduces a significant compliance exposure: content may infringe third-party rights, may misrepresent its own provenance, or may not meet the standards required for public release.
+
+Deliverables
+A working prototype that processes the dimensions, returns a per-dimension confidence score with supporting evidence, and integrates into an existing content workflow. Solutions should state their accuracy and false-positive rate on a declared test set, and should go beyond what standards and invisible watermarking already provide.
+
+
+Governed Autonomous Multi-Agent Investigation System with Secure Tool Use
+Cyber Security
+Challenge Statement
+Build a governed multi-agent system in which a supervisor breaks an investigation into smaller jobs and issues each worker a formal work order defining its goal, success criteria, permitted tools, forbidden actions, resource limits, required evidence and stopping conditions. Each worker returns a standard evidence pack: its claims, the evidence for and against each, its assumptions, its confidence, a log of tools used, and whether it completed the job. Anything a tool returns must be treated as untrusted input and must never change a worker's goal, powers, permissions, budget or safety rules. Reading data and changing data should require different levels of permission. The system must enforce resource budgets, prevent the same data-changing action running twice, handle failures gracefully, and return a partial answer when a job cannot be completed. The supervisor must compare findings and show where workers disagree rather than just picking one, and every order, tool call, decision and stop reason must be recorded in a permanent log.
+
+Background
+A team of AI agents can split a large investigation into smaller jobs, use tools, gather evidence and combine the results. But letting agents act freely brings real engineering and security problems. Two agents may unknowingly repeat the same work. An agent may run far more tool calls than budgeted, use a tool it was never authorised to use, return a conclusion with no evidence behind it, change shared data unexpectedly, or - worst of all - obey malicious instructions hidden inside a document it just fetched. Adding more agents does not automatically help; you can simply get more agents making the same mistake while consuming more time and money. Safe autonomy therefore needs clear job orders, strictly limited powers, necessary tool access, a rule that every claim comes with evidence, controlled permission to change anything, hard stopping conditions, and a complete record of what happened. This challenge is about building a governed team of agents.
+
+Deliverables
+• One supervisor and two or three bounded worker agents. • Typed Agent Assignment and EvidenceBundle schemas. • Three controlled tools with read and action permission separation. • Per-worker and global tool-call budgets. • A secure tool gateway and sanitized append-only audit trail. • Timeout, retry, malformed-result and duplicate-action handling. • Evidence-based aggregation of worker findings and disagreements. • Safe stopping with partial results. • Demonstrations of normal completion, budget exhaustion, injection, unauthorized action, tool failure and conflicting findings.
+
+
+
+Enhancing Cybersecurity Resilience using AI
+Cyber Security
+Challenge Statement
+Develop and demonstrate an AI-supported cyber-resilience POC for a selected IT environment and a small set of attack scenarios. Participants may choose the users, systems, data sources, threats, AI methods, security tools, and response approach. The solution should help identify important suspicious activity, combine related warnings, explain what may have happened, and suggest or perform suitable actions. High-impact actions must require human approval and all decisions should be recorded. Teams should show how the system handles false alarms, missing or misleading data, uncertain results, and attempts to confuse or misuse the AI. The POC may use public or synthetic data, a safe cyber range, simulated systems, or a suitable combination. It should be compared with a simple rule-based or manual baseline using measures such as detection quality, false alarms, investigation time, response time, recovery time, and analyst effort.
+
+Background
+Companies use cloud services, online applications, remote access, connected devices, and outside software providers to run daily operations. Each connection can create another way for attackers to steal passwords, enter systems, damage data, or stop important services. Security teams receive large numbers of warnings from different tools, but many are false or repeated. This makes it harder to notice the few warnings that show a real attack. Staff may spend hours collecting information, understanding what happened, and deciding what to do, while an attacker can move quickly. New attacks also change often and may use convincing messages, fake identities, or unfamiliar methods. Automatic responses can save time, but a wrong action might block a genuine user or interrupt business. There is a need for a trustworthy system that helps security teams find important threats, understand the evidence, act faster, and recover safely while keeping people in control of high-impact decisions.
+
+Deliverables
+A working prototype demonstrating detection, agentic triage and automated response on a public or synthetic dataset (for example CIC-IDS or a simulated attack range). A system architecture document covering data pipeline, models, agent design and integration with existing SIEM, SOAR and EDR tooling. A live demo of at least two attack scenarios, such as phishing-led credential compromise and lateral movement, from alert through to containment. Quantified results showing reduction in false positives, MTTD and MTTR against a rule-based baseline, with detections mapped to MITRE ATT&CK. A short note on adversarial robustness, AI governance and commercial business value.
+
+
+
+OTT streaming quality of service
+Digital Platforms
+Challenge Statement
+Create a non-intrusive hardware-and-software proof of concept that monitors selected live or recorded OTT streams from the viewer perspective without modifying the source stream or player. The POC should capture screen output and audio, collect available network or playback telemetry, and identify black frames, frozen frames, startup delay, buffering events, playback interruptions, audio-video synchronization errors, and bitrate or resolution changes. It should correlate detected events with bandwidth, latency, packet loss, and device resource information when available. The system must calculate an explainable Quality of Experience score using configurable thresholds and show how each detected issue affects the score. Results should include timestamps, event duration, confidence, screenshots or clips, and possible contributing factors. Testing should cover a defined set of devices, resolutions, protocols, content samples, and controlled network conditions. The POC is for monitoring and diagnosis by engineering teams; production-scale deployment, exhaustive protocol coverage, and automated service remediation are outside scope.
+
+Background
+OTT services deliver video across varied devices, applications, codecs, resolutions, and network conditions. Viewer experience can deteriorate because of slow startup, buffering, frozen or black frames, audio-video misalignment, playback interruption, or ineffective adaptation to available bandwidth. Platform monitoring commonly reports server, application, and network metrics, but these indicators do not always show what a viewer actually sees and hears. Manual observation is time-consuming, subjective, difficult to repeat, and unsuitable for continuous testing across many streams. Quality events may also be reviewed separately from bandwidth, latency, packet loss, and device behavior, making root-cause analysis difficult. As a result, service teams may detect problems late, compare tests inconsistently, or lack clear evidence for prioritizing corrective action. The core need is a repeatable, non-intrusive method that observes playback from the user perspective, measures important quality events consistently, and presents timestamped evidence and comparable results for technical review and meaningful information for corrective action.
+
+Deliverables
+• Non-intrusive POC that captures selected OTT video, audio, and available telemetry. • Detection of startup delay, buffering, black or frozen frames, playback interruption, audio-video sync errors, and bitrate or resolution changes. • Configurable, explainable Quality of Experience score. • Dashboard showing timestamps, duration, confidence, evidence, and possible contributing factors for each event. • Test dataset and benchmark report covering defined devices, resolutions, content samples, protocols, and network conditions. • Source code, setup guide, test evidence, technical documentation, and future-enhancement recommendations.
+
+
+Personalized Streaming Without the Bandwidth Cost
+Digital Platforms
+Challenge Statement
+Design a solution that delivers a personalised media experience (e.g., adaptive video quality, personalised content assembly, or targeted ad insertion) while minimising bandwidth consumption under constrained or variable network conditions. Approaches may include perceptual or content-aware compression, edge caching, predictive pre-fetching, or AI-driven adaptive encoding that allocates bandwidth to what matters most to the viewer. The primary metric is objective perceptual quality per megabyte delivered, measured against standard adaptive bitrate streaming (HLS or DASH) as the baseline on a common test clip set and network degradation profile, with rebuffering ratio and startup latency as secondary metrics.
+
+Background
+Streaming companies want to make everything personal — recommend the right show, insert the right advertisement, deliver the right video quality. The trouble is that personalisation usually means sending more data, and it tends to be needed most in exactly the places where data is scarcest: on a mobile connection, in a small town, or at primetime when everyone is watching at once. Today, streaming apps handle this crudely. Adaptive bitrate streaming simply watches your connection speed and drops the picture quality when the pipe narrows. It has no idea what is actually on screen: a static news anchor and a fast-moving football match are treated identically, even though one can be compressed hard without anyone noticing and the other cannot. If the system understood both the content and the viewer, it could spend its limited bandwidth on the parts that matter and quietly degrade the parts nobody notices.
+
+Deliverables
+A working demo or reproducible simulation showing the proposed approach outperforming the HLS/DASH baseline on objective perceptual quality per megabyte (VMAF or SSIM).
+
+
+
+Self-Diagnosing Edge Devices
+Digital Platforms
+Challenge Statement
+Design and implement an embedded system capable of monitoring its own operational health and autonomously detecting degradation or fault conditions - such as sensor drift, abnormal power draw, communication errors, or thermal anomalies - without relying on continuous human monitoring or cloud connectivity. Faults are to be induced on the running device, by heating the board, injecting noise into a sensor line, or interrupting a bus, and caught while it continues to operate. Teams must state which health signals the device watches, how it identifies anomalies within the memory and compute headroom left on the chosen part, and what it does once a fault is confirmed: log it, degrade gracefully, or raise an alert. Characterise the cost of the self-diagnosis logic as flashed - bytes of flash and RAM occupied, CPU duty cycle, and incremental current draw measured at the supply rail - and justify why it remains viable on a cost-sensitive part. Teams should also explain how diagnostic reports are aggregated across a deployed fleet.
+
+Background
+Small electronic devices are now installed almost everywhere - inside machines, on poles, under roads, in remote pumping stations. Many of them sit in places where sending an engineer out costs more than the device itself. The trouble is that these devices tend to fail quietly. A sensor may slowly drift out of calibration, memory may degrade, the board may run hot, or a communication line may fail intermittently. The device eventually either goes silent or, worse, keeps reporting incorrect data that nobody knows to distrust. Somebody then has to travel out, guess at the cause, and usually swap the whole unit. What is needed is a device that keeps an eye on itself - one that notices its own sensor drifting, its own temperature creeping up, its own power draw looking odd, and says so early. This has to work on a chip with a few kilobytes of memory and a very small power budget.
+
+Deliverables
+A working prototype on a physical microcontroller or development board, demonstrating live detection of various deliberately induced fault and degradation scenarios. Teams must also report the resource footprint of the self-diagnosis logic (flash, RAM, CPU duty cycle, incremental power draw) and the detection accuracy achieved per fault type.
+
+
+
+Develop a responsible social media application
+Digital Platforms
+Challenge Statement
+Develop and demonstrate a social media experience that gives users more control over what they see and how they interact online. Users should be able to choose, combine, or change interests such as learning, sports, art, technology, entertainment, personal stories, or social causes. The experience should reduce unwanted distractions while still allowing people to discover different ideas when they choose. It should also help users create content together safely for a shared topic, event, or purpose. Participants may decide how contributions are invited, reviewed, arranged, published, and reused. The solution should explore ways to handle harmful content, false information, fake accounts, artificial popularity, hidden advertising, and AI-created or AI-changed material. It should protect personal information, consider child safety, explain decisions, and allow users to report or question content. Teams may choose their features, design, technology, and approach, but should show how the idea improves user control, trust, safety, and usefulness.
+
+Background
+Social media helps people learn, share ideas, follow interests, and stay connected. However, users often have little control over what appears in their feeds. Someone looking for science, sports, art, technology, or personal stories may instead see unrelated posts, advertisements, shocking content, or artificial trends. Platforms often recommend content to keep people watching, rather than to support what they want to do at that moment. Users may also face bullying, false information, fake accounts, hidden promotions, and content created or changed by AI without clear labels. Children and other vulnerable users can face risks. At the same time, strict filtering can hide different opinions and limit useful discovery. There is a need for a more responsible social media experience that gives people choice without secretly profiling them. It should make online participation safer, clearer, and more useful while protecting privacy, free expression, creativity, and the ability to connect with communities.
+
+Deliverables
+A functional prototype of an interest-focused social platform where users can select, combine, and switch between Interest Modes and Focus Modes. The prototype should demonstrate relevant content feeds, interest-based communities, and moderator-controlled video stitching that combines approved contributions into one shared creation. It should include AI-content labeling, harmful-content moderation, bot and manipulated-engagement detection, child-safety controls, privacy and audience settings, and contributor consent. Deliverables should also include the proposed modular architecture, secure APIs, scalability approach, administrator dashboard, and demonstration of key user journeys.
+
+
+
+Novel pinless/markerless registration methods for navigation and surgical robotics
+MedTech
+Challenge Statement
+Develop a markerless registration proof of concept for one orthopedic anatomy and workflow, using a synthetic bone model, physical phantom, or approved dataset. The POC should create a three-dimensional reference model from CT or equivalent imaging and acquire intraoperative-like surface or depth observations using stereo vision, structured light, depth sensing, or another justified modality. It should automatically identify usable geometric features, estimate the rigid transformation between observed anatomy and the reference model, and display the aligned result. The system must calculate registration error and confidence, detect insufficient coverage or loss of alignment, and allow re-registration when required. Evaluation should include different viewpoints, partial occlusion, sensor noise, and controlled phantom movement. Teams should compare the method with a point-based or surface-based baseline. Instrument tracking can be demonstrated as an extension.
+
+Background
+Surgical navigation depends on accurately aligning preoperative three-dimensional images and plans with the patient’s anatomy in the operating environment. Current orthopedic workflows commonly use tracked pointers, reflective markers, rigid arrays, or bone-fixed pins to establish and maintain this relationship. These methods can add setup time, require repeated landmark collection, depend on operator technique, obstruct the working area, and introduce extra hardware or invasive fixation. Registration accuracy may also change when the anatomy, camera, or reference array moves, making continuous verification important. A markerless approach could simplify workflow, but it must address limited surface visibility, soft-tissue occlusion, similar anatomical shapes, sensor noise, viewpoint changes, and differences between preoperative images and intraoperative observations. The central engineering need is a noninvasive method that identifies observable bony geometry, aligns it with a CT-derived model, reports registration confidence, detects loss of alignment, and supports repeatable validation without relying on implanted fiducials or manual point correspondence.
+
+Deliverables
+• Defined anatomy, workflow, sensing method, assumptions, and registration architecture. • CT-derived or equivalent three-dimensional reference model and phantom or synthetic test dataset. • Markerless surface or depth acquisition and preprocessing pipeline. • Automatic feature extraction and rigid-registration algorithm with confidence reporting. • Visualization showing reference, observed anatomy, alignment, and registration status. • Detection of inadequate coverage, alignment loss, and re-registration need. • Validation report covering target registration error, repeatability, occlusion, noise, movement, and baseline comparison.
+
+
+
+Smart Precision Motion Platform for Ophthalmic Imaging
+MedTech
+Challenge Statement
+Develop and demonstrate a precision motion platform that positions an eye-imaging head around a seated patient. The platform should move along and around several axes, travel smoothly and repeatably, and settle with very little vibration. It must move between the left and the right eye on its own, along a planned path that always stays outside a defined no-go zone around the patient's face, and it should never require the patient to be repositioned. Position sensors should confirm the actual position at all times, detect slip or lost motion, and trigger a safe stop and recovery if anything goes wrong. Operators should also be able to take over and fine-tune the alignment by hand through an intuitive control, with the speed reducing as the head comes closer to the eye.
+
+Background
+Modern eye-imaging machines take very detailed pictures of the inside of the eye. To do this, the camera head has to be brought to exactly the right place in front of a seated patient and then held very steady, because even a tiny vibration blurs the image. The patient should not have to be moved or repositioned, and the machine must switch from one eye to the other quickly and safely without ever touching the face. Today this movement is handled by mechanical stages that are either accurate but bulky and expensive, or affordable but not repeatable enough. Operators also need a simple way to make a final fine adjustment by hand, and the machine must know at all times where its own camera head actually is, so that it can stop safely if something jams or slips. Therefore, there is a need for a compact motion platform that is precise, quiet, safe close to a patient's face, easy to build and service, and low in cost.
+
+Deliverables
+Integrated system architecture, motion-envelope model, path-planning logic, closed-loop control strategy, manual alignment interface, costed concept BOM, validation plan, and prototype or simulation evidence.
+
+
+
+Non-Invasive Knee Movement Tracking for Gait Assessment
+MedTech
+Challenge Statement
+Design and validate a non-invasive system that measures six-degree-of-freedom knee kinematics during functional movement, and present the output in a form a clinician can interpret. Teams may combine wearable inertial measurement units, depth or multi-camera vision, flexible strain sensing, or other non-invasive modalities, together with a sensor-fusion algorithm that resolves rotation and translation simultaneously. The system must operate outside a dedicated gait laboratory, tolerate soft-tissue movement, and remain usable by a single operator. Teams are expected to define a movement protocol (for example gait, sit-to-stand, stair descent and a controlled pivot), acquire data from healthy volunteers, and validate their output against an accepted reference such as an optical motion-capture system or an instrumented rig. Accuracy targets: rotational error within 5 degrees and translational error within 5 mm root-mean-square against the reference, sustained across the full movement cycle. Implantable or in-vivo sensing is explicitly out of scope; ligament-level strain measurement may be discussed only as future work.
+
+Background
+The human knee is not a simple hinge. It moves with six degrees of freedom: flexion-extension, internal-external rotation, abduction-adduction, and anterior-posterior, medial-lateral and superior-inferior translation. Clinical assessment today captures only a fraction of this. Goniometers and standard gait labs report flexion angle reliably but characterise rotation and translation poorly, and marker-based optical systems suffer from soft-tissue artefact at the thigh and shank. As a result, clinicians assessing ACL deficiency, meniscal injury, osteoarthritis progression or post-operative recovery work with an incomplete picture of joint behaviour, particularly during dynamic tasks such as stair descent, pivoting and squatting where instability actually presents. Rehabilitation protocols and implant design decisions are therefore based largely on sagittal-plane data. A low-cost, non-invasive system that resolves all six degrees of freedom during functional movement would give clinicians objective, repeatable evidence of joint mechanics, support earlier detection of instability, and allow rehabilitation progress to be measured rather than estimated.
+
+Deliverables
+The developed system to demonstrate the ability to directly measure skeletal kinematics in 6-DOF despite soft tissue deformations between the transducer and the bony surface.
+
+
+
+Patient Specific 3D Anatomical Reconstruction from DICOM Imaging Data
+MedTech
+Challenge Statement
+The challenge is to develop a reliable method for reconstructing a patient-specific 3D anatomical model from medical imaging data available in DICOM format. The solution should be capable of reading a sequence of DICOM image slices, interpreting the associated metadata, and maintaining the correct spatial relationship between individual slices during reconstruction. Variations in slice orientation, spacing, thickness, image resolution, patient movement and acquisition quality should be appropriately considered so that they do not significantly affect the final anatomical representation. The reconstructed 3D volume should support identification and separation of relevant anatomical structures present within the selected region. The solution should also be capable of refining the reconstructed structures and generating an anatomically meaningful 3D mesh that closely represents the original patient anatomy. Particular importance should be given to alignment accuracy, structural continuity, anatomical consistency and preservation of clinically relevant features. The developed approach should further provide an interactive visualization of the reconstructed anatomical model and enable the analysis of important structural or tissue-related characteristics wherever applicable. The overall objective is to achieve a consistent, accurate and usable 3D anatomical representation that can support medical visualization, research analysis, diagnostic assessment, treatment planning and surgical planning.
+
+Background
+Medical imaging technologies such as CT, MRI, X-ray generate a large amount of anatomical information in the form of DICOM image slices. In most cases, these images are still reviewed as a sequence of 2D slices and understanding the complete 3D anatomical structure depends heavily on the experience of the clinician or researcher. When the anatomical region is complex, such as the heart, brain or breast, it becomes difficult to accurately understand the spatial relationship between different structures only from individual image slices. Another challenge is that DICOM images may have variations in slice thickness, spacing, patient orientation, image quality and acquisition parameters. Patient movement and imaging artifacts can also introduce misalignment between slices. These variations can affect the accuracy of 3D reconstruction and subsequent anatomical analysis. There is therefore a need to develop an approach that can process DICOM image data, maintain the correct anatomical and spatial relationship between image slices, reconstruct the region into an accurate 3D representation, and identify individual anatomical structures within it. The reconstructed model should also support detailed visualization and analysis of structural and functional characteristics, so that it can be useful for medical research, diagnostic assessment, treatment planning and surgical planning.
+
+Deliverables
+The expected deliverables should include a working prototype capable of processing DICOM image data and reconstructing a patient specific 3D anatomical model. The solution should demonstrate DICOM metadata handling, slice ordering and alignment, 3D volume reconstruction, anatomical structure segmentation, mesh generation and validation. Participants should provide an interactive visualization of the reconstructed model along with measurable accuracy and performance results. The final submission should also include the proposed methodology, system architecture, validation approach, test results, identified limitations and a demonstration using representative medical imaging datasets.
+
+
+
+Self Calibrating and Healing Medical Devices Using AI and Digital Twins
+MedTech
+Challenge Statement
+Build a working demonstration of a medical device that can look after its own calibration. Pick one or two device types and their sensors, for example pressure, flow, temperature, optical or ECG, and create a system that continuously checks whether the readings can still be trusted. The solution should spot slow drift early, tell real drift apart from ordinary noise and from changes in room temperature or humidity, and estimate how long a sensor has left before it must be corrected or replaced. Where the design allows, the device should correct itself automatically; where it cannot, it should clearly assit on what to do and when. A digital twin, that is a software copy of how the device is expected to behave, can be used to compare expected against actual behaviour.
+
+Background
+Hospitals run on measuring equipment: patient monitors, infusion pumps, ventilators, ECG machines, scanners and laboratory analysers. Every one of these has to be checked and adjusted from time to time, because sensors slowly drift away from their true reading. Today that check is done by hand. A service engineer visits the site, takes the device out of use, compares it against a reference and corrects it. This is slow and expensive, it depends on skilled people being available, and it is itself open to human error. Worse, drift does not wait for the service calendar. A device can quietly start reading a little high or a little low between two visits, and a doctor may take a decision based on a wrong number without knowing it. The industry now wants equipment that can watch its own accuracy, notice when it is going out of tune, warn before it fails, and correct itself wherever possible.
+
+Deliverables
+Expected Solution : Intelligent Sensor Layer Embedded sensor diagnostics Sensor redundancy Self-test routines Digital Twin Layer Create a virtual replica of: Device behavior Sensor performance Expected operating parameters AI Analytics Engine : Drift prediction Anomaly detection Root-cause analysis Calibration optimization Clinical Dashboard : Device status Calibration confidence score Risk alerts Predictive maintenance recommendations
+
+
+
+Aqua Birth - Smart Water Birth System with Underwater Wireless Communication for Maternal & Fetal Monitoring
+MedTech
+Challenge Statement
+Design and build a working demonstration of a waterproof, cable-free monitoring system for water birth. Small wearable or floating sensors on the mother should keep measuring her heart rate, blood pressure, body temperature, blood oxygen level, and the timing and strength of her contractions. A second sensor should follow the baby's heart rate, movement and any early sign of distress. All this data must travel through the water to a bedside screen without wires, and appear almost immediately so that staff can act in time. Teams will have to find a way of sending signals through water. The system must be fully sealed, run for the length of a long labour on a small battery, stay comfortable while the mother moves, and raise a clear alarm whenever a reading becomes unsafe.
+
+Background
+More and more hospitals now offer water birth, where the mother spends part of her labour in a warm pool of water. Being in water helps her relax, reduces pain and supports a more natural delivery. But it creates a practical problem for the medical team. The equipment normally used to watch the health of the mother and the baby is wired, and wires cannot be used safely in water. Water also blocks ordinary wireless signals such as Bluetooth and Wi-Fi, so a normal wireless sensor placed under water quickly loses its connection. As a result, doctors and midwives often have to ask the mother to sit up or step out of the pool from time to time so that checks can be done by hand. This interrupts her comfort and, more importantly, leaves gaps in which an early warning sign in the mother or the baby could be missed. Hospitals therefore need a safe, waterproof and cable-free way to keep watching both mother and baby continuously while she stays in the water.
+
+Deliverables
+Underwater communication module (acoustic, ultrasonic, magnetic induction, optical, or hybrid) Wearable maternal sensors Fetal monitoring sensors, interface Edge AI analytics Mobile/Cloud dashboard Emergency alert generation
+
+
+AI-Powered Multimodal Surgical Assistant for Real-Time Operating Room Guidance
+MedTech
+Challenge Statement
+Develop a nonclinical conversational assistant for one simulated operating-theatre workflow: the pre-incision safety checklist. Using scripted scenarios, synthetic patient data, and one modality—full-duplex speech—the assistant shall recognize checklist items, retrieve approved protocol content, track completion, identify omissions or contradictory responses, and provide concise prompts. It must handle interruptions, overlapping speech, noise, and uncertain recognition; never make diagnosis or autonomous treatment decisions; and require the designated clinician to confirm every checklist completion. Compare with a static digital checklist in controlled simulations.
+
+Background
+Critical and Complicated surgery are time consuming and at time very much dependent on limited number of specialists. There is need for guided context decision support from experts to bring in scale.
+
+Deliverables
+1. Approved checklist knowledge base, synthetic cases, scripted omissions, and audio-noise scenarios. 2. Streaming speech recognition and speaker/turn handling for the bounded workflow. 3. Protocol-grounded dialogue manager with state tracking, confidence, and abstention. 4. Human confirmation, override, correction, and complete timestamped audit trail. 5. Simulation interface clearly labeled nonclinical. 6. Evaluation versus static checklist using item-completion accuracy, omission-detection recall, false prompts, response latency, interruption recovery, task time, and user workload. 7. Safety case, privacy analysis, and clinical-validation roadmap.
+
+
+
+Edge-AI Wearable for Continuous Remote Vital-Sign Monitoring
+MedTech
+Challenge Statement
+Design and build a low-cost, low-power wearable prototype that continuously captures at least one physiological signal (e.g., SpO2, ECG, heart rate, or motion) and performs on-device anomaly detection using an embedded AI/ML model. A functional hardware prototype is mandatory. The solution must operate correctly with intermittent or no network connectivity, buffering data locally and syncing opportunistically. The primary metric is detection latency, measured from the onset of the anomaly in the signal to the device raising it, with the false-positive rate over a continuous multi-hour run as the counterweight. Teams may use any combination of low-power microcontrollers, edge-AI accelerators, or TinyML frameworks, and must consider their power budget, sensor accuracy trade-offs, and a realistic caregiver alerting mechanism. Consideration should also be given to data privacy handling.
+
+Background
+Today, if you want your heart rhythm or oxygen levels checked properly, you generally have to go to a hospital. That works if you live near one. Millions of people in rural and semi-urban areas do not. So conditions like an irregular heartbeat, sleep apnea, or diabetic complications quietly build up in the months between one checkup and the next, and are often caught only after real damage has been done. Fitness bands and smartwatches were meant to help, but most of them are really just sensors with a radio attached. They collect the raw signal and ship it off to a server somewhere to be analysed. That creates three problems: it stops working when the network drops, personal health data travels further than it needs to, and the answer comes back late. In an area with patchy mobile coverage, the device is effectively blind. The fix is to stop treating the wearable as a dumb sensor and start treating it as a small computer that can spot trouble on its own, warn the patient immediately, and upload the details later whenever a network happens to be available.
+
+Deliverables
+A functional hardware prototype demonstrating live on-device signal acquisition and anomaly detection, with a recorded or live demo showing at least one detected anomaly. A bill of materials with unit cost, a measured power budget and estimated battery life, and a detection performance summary (latency and false-positive rate).
+
+
+
+Adaptive AI driven Medical Scan Analysis
+MedTech
+Challenge Statement
+Develop and demonstrate an AI-based medical scan support system that can adjust how it helps different doctors and clinical situations. Participants may choose a scan type, health condition, user group, data source, and approach. The system could change the amount of detail, explanation, evidence, or guidance it provides based on the user's needs, without making assumptions about a doctor's ability. It should show findings, explain why they may matter, and state its confidence and limits. It should also recognize poor-quality or incomplete scans and ask for review rather than giving a misleading answer. Doctors must be able to question, correct, or reject the system's suggestions. Teams should test whether the doctor and AI working together perform better than either alone, using measures and representative users or simulations. The solution should protect patient privacy, reduce bias, keep a record of decisions, and remain a support tool rather than replace medical judgement.
+
+Background
+Doctors use medical scans like X-rays, CT scans, and MRI scans to find injuries and diseases. AI can support them by pointing out areas, making measurements, or bringing urgent cases to attention. However, doctors have different levels of experience and may need different kinds of help. A new doctor may value clear explanations and examples, while a specialist may prefer a short summary, measurements, or a second opinion. The support needed can also change with the scan type, patient condition, urgency, and image quality. Most AI tools give similar information to every user and may not fit these changing needs. Poorly designed support can confuse users, create too much trust in the system, or hide uncertainty. There is a need for a safer and more flexible approach that helps each doctor use scan information effectively. The doctor must remain responsible for the final decision, and patient data must remain protected.
+
+Deliverables
+Machine Learning + Deep Learning + Generative AI driven Adaptive Medical Scan Analysis and Recommendation System

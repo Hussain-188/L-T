@@ -1,0 +1,166 @@
+================================================================================
+BUILD PLAN: IntelliRoute — Adaptive LLM Cost Routing System
+================================================================================
+
+1. PROJECT OVERVIEW
+--------------------------------------------------------------------------------
+An intelligent middleware that sits between users and multiple language models,
+routing each request to the cheapest model capable of handling it correctly.
+Composite requests are split so each part goes to the optimal model.
+
+2. ARCHITECTURE
+--------------------------------------------------------------------------------
+
+  User Request
+       |
+  [API Gateway - FastAPI]
+       |
+  [Complexity Analyzer]  -----> classifies request difficulty (low/medium/high)
+       |
+  [Router Engine]         -----> maps difficulty to model + applies policies
+       |
+  +---------+---------+
+  |         |         |
+[Local    [Mid-Tier  [Premium
+ Model]    Cloud]     Cloud]
+(Ollama)  (Claude    (Claude
+           Haiku)     Opus/GPT-4)
+  |         |         |
+  +---------+---------+
+       |
+  [Response Combiner]    -----> merges sub-task responses if request was split
+       |
+  [Quality Monitor]      -----> samples and scores responses asynchronously
+       |
+  [Dashboard - React]    -----> cost tracking, routing logs, quality metrics
+
+
+3. TECH STACK
+--------------------------------------------------------------------------------
+Component               Technology              Why
+---                     ---                     ---
+Backend API             Python 3.11 + FastAPI   Async, fast, typed
+Local Model             Ollama (Llama 3 / Phi)  Free, runs on CPU/GPU
+Cloud Models            OpenAI API / Claude API Industry standard
+Complexity Classifier   scikit-learn + spaCy    Lightweight, no GPU needed
+Database                SQLite (dev) / Postgres Stores logs, metrics
+Message Queue           Redis                   Async quality sampling
+Frontend Dashboard      React + Recharts        Interactive cost charts
+Containerization        Docker + docker-compose Reproducible setup
+
+4. MODULE BREAKDOWN
+--------------------------------------------------------------------------------
+
+Module 1: Model Pool Manager
+  - Register models with: name, endpoint, cost-per-token, capability tier
+  - Health check each model periodically
+  - Ollama integration for local model (REST API)
+  - OpenAI/Claude SDK wrappers for cloud models
+  Files: models/pool.py, models/ollama_client.py, models/cloud_client.py
+
+Module 2: Complexity Analyzer
+  - Feature extraction: token count, vocabulary diversity, sentence depth,
+    presence of reasoning keywords, domain-specific terms, output length hint
+  - Train a lightweight gradient-boosted classifier on labeled prompt examples
+  - Output: difficulty score (0-1) mapped to tiers (simple/moderate/complex)
+  Files: analyzer/features.py, analyzer/classifier.py, analyzer/train.py
+
+Module 3: Router Engine
+  - Decision matrix: difficulty tier x latency requirement x cost budget
+  - Policy overrides: admin can force specific routes for certain teams/tasks
+  - Fallback chain: if preferred model is unavailable, try next tier up
+  Files: router/engine.py, router/policies.py, router/fallback.py
+
+Module 4: Request Decomposer
+  - Detect composite requests (e.g., "summarize this AND translate to French")
+  - Split into independent sub-tasks using a lightweight parsing heuristic
+  - Route each sub-task independently
+  - Reassemble responses in original order
+  Files: decomposer/detector.py, decomposer/splitter.py, decomposer/combiner.py
+
+Module 5: Quality Monitor
+  - Asynchronous sampling: pick N% of routed responses
+  - Re-run sampled requests through premium model as reference
+  - Score similarity (ROUGE, BERTScore, or LLM-as-judge)
+  - If quality drops below threshold, adjust router thresholds
+  Files: monitor/sampler.py, monitor/scorer.py, monitor/feedback.py
+
+Module 6: Dashboard
+  - Real-time cost per model, per team, per task type
+  - Routing distribution pie chart
+  - Quality score trend line
+  - Manual override interface (force a request to a specific model)
+  - Savings calculator: actual cost vs "always premium" baseline
+  Files: frontend/src/pages/Dashboard.jsx, CostChart.jsx, RoutingLog.jsx
+
+5. DEVELOPMENT PHASES
+--------------------------------------------------------------------------------
+
+Phase 1 — Foundation (Days 1-3)
+  - Set up project structure, Docker, FastAPI skeleton
+  - Integrate Ollama with one local model
+  - Integrate one cloud API (OpenAI or Claude)
+  - Basic pass-through routing (all to one model)
+  - Verify end-to-end request/response flow
+
+Phase 2 — Complexity Analysis (Days 4-6)
+  - Build feature extraction pipeline
+  - Create labeled dataset of 200+ prompts across difficulty tiers
+  - Train classifier, evaluate accuracy (target: 85%+ tier accuracy)
+  - Integrate classifier into request pipeline
+
+Phase 3 — Smart Routing (Days 7-9)
+  - Implement routing decision matrix
+  - Add policy configuration (JSON/YAML)
+  - Build fallback chain logic
+  - Test routing across all three model tiers
+
+Phase 4 — Request Decomposition (Days 10-12)
+  - Build composite request detector
+  - Implement splitting and recombination logic
+  - Test with multi-part prompts
+  - Handle edge cases (dependent sub-tasks)
+
+Phase 5 — Quality Monitoring (Days 13-15)
+  - Implement async sampling pipeline
+  - Build scoring module (LLM-as-judge approach)
+  - Create feedback loop to adjust routing thresholds
+  - Set up alerting for quality drops
+
+Phase 6 — Dashboard & Benchmarking (Days 16-20)
+  - Build React dashboard with cost and quality visualizations
+  - Run benchmark suite: 500+ diverse prompts
+  - Measure cost savings vs always-premium baseline
+  - Measure quality retention (target: <5% degradation)
+  - Package demo and prepare presentation
+
+6. TESTING AND EVALUATION
+--------------------------------------------------------------------------------
+
+Metric                  Target                  Method
+---                     ---                     ---
+Cost Reduction          40-60% vs baseline      Compare total spend on benchmark set
+Quality Retention       <5% degradation         LLM-as-judge scoring vs premium-only
+Routing Accuracy        85%+ correct tier       Manual labeling of 200 test prompts
+Latency Overhead        <200ms added            Measure router decision time
+Decomposition Accuracy  80%+ correct splits     Manual review of 50 composite prompts
+
+7. DEMO PLAN
+--------------------------------------------------------------------------------
+1. Live demo: send 20 diverse requests through the system
+2. Show dashboard updating in real-time with costs and routing decisions
+3. Side-by-side comparison: same requests through premium-only vs IntelliRoute
+4. Highlight: a complex request being split and routed to two different models
+5. Show quality scores confirming minimal degradation
+6. Display total cost savings with dollar figures
+
+8. DELIVERABLES MAPPING (vs Challenge Statement)
+--------------------------------------------------------------------------------
+[x] Router sitting in front of several models of differing cost and capability
+[x] At least one model running locally (Ollama)
+[x] Decides which model handles each request based on complexity
+[x] Split requests with multiple parts across models and combine results
+[x] Measurable cost reduction with quality holding steady
+[x] Transparent: users can see which model handled what and why
+[x] Controllable: administrators can override routing choices
+[x] Benchmarking mechanism to measure cost reduction

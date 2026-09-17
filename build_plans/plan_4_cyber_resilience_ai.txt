@@ -1,0 +1,298 @@
+================================================================================
+BUILD PLAN: CyberSentinel — AI-Driven Cyber Resilience System
+================================================================================
+
+1. PROJECT OVERVIEW
+--------------------------------------------------------------------------------
+An AI-powered security operations proof-of-concept that ingests network traffic
+data, detects threats using machine learning, triages alerts with an AI agent,
+maps detections to MITRE ATT&CK, and orchestrates response actions with
+human-in-the-loop governance for high-impact decisions.
+
+2. ARCHITECTURE
+--------------------------------------------------------------------------------
+
+  [Network Traffic / CIC-IDS Dataset]
+              |
+  [Layer 1: Data Ingestion]
+    - Parse PCAP / CSV network flow records
+    - Feature engineering (80+ flow features)
+    - Real-time stream simulation
+              |
+  [Layer 2: Detection Engine]
+    - Ensemble classifier (XGBoost + Random Forest)
+    - Autoencoder anomaly detector (novel threats)
+    - Alert generation with confidence scores
+              |
+  [Layer 3: AI Triage Agent]
+    - Cluster related alerts into incidents
+    - Assess severity and impact
+    - Map to MITRE ATT&CK techniques
+    - Generate incident narrative
+    - Recommend response actions
+              |
+  [Layer 4: Response Orchestrator]
+    - Low-risk: auto-execute within policy (block IP, rate limit)
+    - High-risk: escalate to human with evidence package
+    - Action execution and confirmation
+              |
+  [Layer 5: Dashboard and Audit]
+    - Real-time alert feed
+    - MITRE ATT&CK heat map
+    - Incident timeline visualization
+    - Human approval interface
+    - Full audit trail
+              |
+  [Evaluation: Compare vs Rule-Based Baseline]
+
+
+3. TECH STACK
+--------------------------------------------------------------------------------
+Component               Technology              Why
+---                     ---                     ---
+Backend                 Python 3.11 + FastAPI   Async API and WebSocket
+ML Models               scikit-learn, XGBoost   Proven classifiers
+                        PyTorch                 Autoencoder for anomaly detection
+Data Processing         Pandas, NumPy           Feature engineering
+AI Triage Agent         LangChain + LLM API     Alert correlation and reasoning
+Dataset                 CIC-IDS2017             Public, labeled, widely cited
+MITRE ATT&CK            MITRE STIX data         Official technique database
+Frontend                React + TailwindCSS     Modern dashboard
+Visualization           Recharts, D3.js         Charts and ATT&CK heat map
+Database                PostgreSQL              Alert storage, audit trail
+Real-time               WebSocket               Live dashboard updates
+Containerization        Docker Compose          Single-command deployment
+
+4. MODULE BREAKDOWN
+--------------------------------------------------------------------------------
+
+Module 1: Data Ingestion and Feature Engineering
+  - Load CIC-IDS2017 CSV files (labeled network flows)
+  - Parse 80+ features: flow duration, packet counts, byte counts,
+    flag counts, inter-arrival times, header lengths, payload stats
+  - Additional engineered features:
+    - Payload entropy (detect encrypted/obfuscated traffic)
+    - Flow rate ratios (bytes/packets per second)
+    - Port behavior patterns (unusual port combinations)
+    - Temporal patterns (time-of-day, burst detection)
+  - Real-time simulation mode: replay flows at configurable speed
+  - Normalize and scale features for ML models
+  Files: ingestion/loader.py, ingestion/features.py, ingestion/simulator.py
+
+Module 2: Detection Engine
+  Supervised Component:
+  - XGBoost classifier trained on labeled CIC-IDS data
+  - Random Forest as secondary classifier
+  - Ensemble: weighted vote of both classifiers
+  - Multi-class: benign, brute force, DoS, web attack, infiltration,
+    botnet, port scan, DDoS
+  - Output: predicted attack type + confidence probability
+
+  Unsupervised Component:
+  - Autoencoder neural network trained only on benign traffic
+  - Reconstruction error as anomaly score
+  - Catches novel attacks not in training labels
+  - Threshold tuned on validation set
+
+  Alert Generation:
+  - Combine supervised + unsupervised signals
+  - Assign severity: low/medium/high/critical
+  - Deduplicate: suppress identical alerts within time window
+  Files: detection/ensemble.py, detection/autoencoder.py,
+         detection/alert_generator.py
+
+Module 3: AI Triage Agent
+  - Receives stream of alerts from detection engine
+  - Clustering: group related alerts by source IP, time window,
+    attack pattern into incident clusters
+  - For each incident cluster:
+    - Summarize what happened in natural language
+    - Identify affected systems and scope
+    - Estimate severity based on target criticality
+    - Map to MITRE ATT&CK techniques using technique descriptions
+    - Recommend ranked response actions
+  - Uses LLM (via LangChain) with structured prompts
+  - Operates within guardrails: cannot execute actions, only recommends
+  Files: triage/agent.py, triage/clustering.py, triage/mitre_mapper.py,
+         triage/prompts.py
+
+Module 4: MITRE ATT&CK Mapper
+  - Load MITRE ATT&CK Enterprise matrix (STIX format)
+  - Map detected attack types to ATT&CK techniques:
+    - Brute Force -> T1110 (Brute Force)
+    - Web Attack -> T1190 (Exploit Public-Facing Application)
+    - Port Scan -> T1046 (Network Service Scanning)
+    - Lateral Movement -> T1021 (Remote Services)
+    - DDoS -> T1498 (Network Denial of Service)
+  - Generate ATT&CK heat map showing which tactics/techniques are active
+  Files: mitre/mapper.py, mitre/stix_loader.py
+
+Module 5: Response Orchestrator
+  - Policy engine defines action tiers:
+    Tier 1 (Auto): Block external IP, rate limit connection
+    Tier 2 (Notify): Alert analyst, log for review
+    Tier 3 (Approve): Isolate host, disable account, trigger forensics
+  - For Tier 3 actions:
+    - Package evidence: alert details, triage reasoning, confidence
+    - Send to human approval interface
+    - Wait for approve/reject/modify decision
+    - Execute approved action (simulated in POC)
+  - All actions logged with timestamp, actor, justification
+  Files: response/orchestrator.py, response/policies.py,
+         response/actions.py
+
+Module 6: Dashboard
+  Pages:
+  a) Overview
+    - Active alerts count by severity
+    - Detection rate over time (line chart)
+    - Top attacking IPs and targets
+    - System health indicators
+
+  b) Alert Feed
+    - Real-time scrolling alert list
+    - Filter by severity, attack type, source
+    - Click to expand: full details, features, confidence
+
+  c) Incident View
+    - Clustered incidents with timeline
+    - Triage agent's narrative and recommendations
+    - Response action status
+
+  d) MITRE ATT&CK View
+    - Heat map of the ATT&CK matrix
+    - Color intensity = frequency of detections per technique
+    - Click technique to see associated incidents
+
+  e) Human Approval Queue
+    - Pending high-impact actions
+    - Evidence package for each
+    - Approve / Reject / Modify buttons
+    - Countdown timer for time-sensitive decisions
+
+  f) Audit Trail
+    - Searchable log of all detections, decisions, actions
+    - Exportable for compliance reporting
+
+  Files: frontend/src/pages/ (Overview, Alerts, Incidents, MitreMap,
+         Approvals, AuditLog)
+
+Module 7: Rule-Based Baseline (for Comparison)
+  - Simple threshold rules:
+    - Flag if packets/sec > threshold
+    - Flag if connection to known-bad port
+    - Flag if failed login count > N
+  - Same alert format as ML system
+  - Run on same test data
+  - Compare: detection rate, false positives, MTTD, MTTR
+  Files: baseline/rule_engine.py, baseline/rules.yaml
+
+5. DEVELOPMENT PHASES
+--------------------------------------------------------------------------------
+
+Phase 1 — Data Pipeline (Days 1-3)
+  - Download CIC-IDS2017 dataset
+  - Build data loader and feature engineering pipeline
+  - Exploratory data analysis: class distribution, feature importance
+  - Build real-time replay simulator
+  - Deliverable: processed feature matrix ready for training
+
+Phase 2 — Detection Models (Days 4-8)
+  - Train XGBoost and Random Forest classifiers
+  - Train autoencoder on benign traffic only
+  - Evaluate: accuracy, precision, recall, F1 per attack type
+  - Tune ensemble weights and anomaly thresholds
+  - Build rule-based baseline for comparison
+  - Deliverable: trained models with >95% detection rate
+
+Phase 3 — AI Triage Agent (Days 9-12)
+  - Build alert clustering logic
+  - Create structured prompts for LLM triage
+  - Implement MITRE ATT&CK mapping
+  - Test triage quality on sample incidents
+  - Deliverable: working triage agent producing incident narratives
+
+Phase 4 — Response Orchestrator (Days 13-15)
+  - Define response policy tiers
+  - Build action execution framework (simulated)
+  - Build human escalation interface logic
+  - Test approval workflow end-to-end
+  - Deliverable: complete detection-to-response pipeline
+
+Phase 5 — Dashboard (Days 16-20)
+  - React project setup
+  - Build all 6 dashboard pages
+  - WebSocket integration for real-time updates
+  - MITRE ATT&CK heat map with D3.js
+  - Human approval interface
+  - Deliverable: fully functional dashboard
+
+Phase 6 — Evaluation and Demo (Days 21-25)
+  - Run full benchmark: ML system vs rule-based baseline
+  - Measure all metrics (below)
+  - Demo two attack scenarios end-to-end:
+    Scenario A: Brute force -> credential compromise -> lateral movement
+    Scenario B: Web application attack -> data exfiltration
+  - Prepare adversarial robustness analysis
+  - Write governance and business value notes
+  - Deliverable: evaluation report + polished demo
+
+6. TESTING AND EVALUATION
+--------------------------------------------------------------------------------
+
+Metric                      ML System Target    Baseline Comparison
+---                         ---                 ---
+Detection Rate (Recall)     > 95%               vs rule-based
+False Positive Rate         < 5%                vs rule-based (expect 70%+ reduction)
+Mean Time to Detect (MTTD)  < 30 seconds        vs manual (hours)
+Mean Time to Respond (MTTR) < 2 minutes         vs manual (30+ minutes)
+ATT&CK Mapping Accuracy     > 85% correct       N/A for baseline
+Triage Quality              Coherent narratives  N/A for baseline
+Alert Deduplication         > 60% reduction      vs raw alert volume
+
+Attack Scenarios for Demo:
+1. Phishing-led credential compromise + lateral movement
+   - Brute force detected -> triage clusters with port scan
+   - Agent maps to T1110 + T1046 + T1021
+   - Recommends account isolation (Tier 3 -> human approval)
+
+2. Web application exploit + data exfiltration
+   - Web attack detected -> anomalous outbound data volume
+   - Agent maps to T1190 + T1041
+   - Recommends blocking IP (Tier 1 auto) + forensic capture (Tier 3)
+
+7. DEMO PLAN
+--------------------------------------------------------------------------------
+1. Start replay of CIC-IDS traffic on dashboard
+2. Show benign traffic flowing — no alerts
+3. Attack traffic begins — alerts start appearing in real-time
+4. Show detection engine catching brute force and port scan
+5. Switch to Incident View — triage agent clusters alerts, explains narrative
+6. Show MITRE ATT&CK heat map lighting up with detected techniques
+7. High-impact response recommended — approval request appears
+8. Operator reviews evidence, approves host isolation
+9. Action executed, incident marked contained
+10. Show audit trail with complete decision chain
+11. Display comparative metrics: ML system vs rule-based baseline
+
+8. DELIVERABLES MAPPING (vs Challenge Statement)
+--------------------------------------------------------------------------------
+[x] Working prototype on public dataset (CIC-IDS)
+[x] System architecture: data pipeline, models, agent design, SIEM integration
+[x] Live demo of 2 attack scenarios (phishing + lateral, web attack)
+[x] Detection, agentic triage, and automated response demonstrated
+[x] Quantified results: false positive reduction, MTTD, MTTR vs baseline
+[x] Detections mapped to MITRE ATT&CK
+[x] Human-in-the-loop for high-impact decisions
+[x] All decisions recorded in audit trail
+[x] Handling of false alarms, uncertain results
+[x] Adversarial robustness and AI governance notes
+[x] Commercial business value discussion
+
+9. PUBLIC RESOURCES AVAILABLE
+--------------------------------------------------------------------------------
+- CIC-IDS2017 Dataset: Labeled network traffic with multiple attack types
+  (freely available from University of New Brunswick)
+- MITRE ATT&CK Framework: Enterprise matrix in STIX format (open access)
+- CWE/CVE databases for vulnerability context
+- All libraries (scikit-learn, XGBoost, PyTorch, LangChain) are open-source

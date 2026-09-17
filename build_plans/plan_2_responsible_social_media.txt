@@ -1,0 +1,303 @@
+================================================================================
+BUILD PLAN: FocusFeed — Responsible Social Media Platform
+================================================================================
+
+1. PROJECT OVERVIEW
+--------------------------------------------------------------------------------
+A social media platform where users control their experience through Interest
+Modes and Focus Modes. Features collaborative content creation, AI content
+labeling, bot detection, content moderation, child safety, and full
+transparency over algorithmic decisions. Built as a web application with
+a React frontend and Node.js/Python backend.
+
+2. ARCHITECTURE
+--------------------------------------------------------------------------------
+
+  [Users / Content Creators]
+           |
+  [React Frontend (SPA)]
+    - Interest Mode selector
+    - Focus Mode toggle (Learn / Discover / Create)
+    - Feed viewer with transparency tags
+    - Collaborative workspace (creation mode)
+    - Moderation and reporting interface
+    - Admin dashboard
+           |
+  [API Gateway — Node.js + Express]
+    - Authentication (JWT)
+    - Rate limiting
+    - Request routing
+           |
+  +--------+--------+--------+--------+
+  |        |        |        |        |
+[Content [Feed    [Safety  [Collab  [Admin
+ Service] Engine]  Engine]  Engine]  Service]
+           |
+  +--------+--------+--------+--------+
+  |        |        |        |        |
+[AI Label [Bot    [Content [Child   [Transparency
+ Detector] Detect] Moderat] Safety]  Logger]
+  (Python  (Python (Python  (Node)   (Node)
+   Flask)   Flask)  Flask)
+           |
+  [Database Layer]
+    - MongoDB (posts, users, interests)
+    - Redis (sessions, feed cache, real-time)
+    - PostgreSQL (audit logs, moderation records)
+
+
+3. TECH STACK
+--------------------------------------------------------------------------------
+Component               Technology              Why
+---                     ---                     ---
+Frontend                React 18 + TailwindCSS  Modern, responsive, fast
+State Management        Redux Toolkit           Complex UI state (modes, feed)
+Backend API             Node.js + Express       Real-time capable, JavaScript
+AI Services             Python + Flask          ML model serving
+AI Content Detection    Hugging Face models     Pretrained AI-content detectors
+Bot Detection           scikit-learn            Behavioral pattern classification
+Content Moderation      OpenAI Moderation API   Free content safety scoring
+                        + custom filters
+Database                MongoDB                 Flexible document store for posts
+Cache / Real-time       Redis                   Feed caching, pub/sub
+Auth                    JWT + bcrypt            Secure, stateless
+File Storage            Local / Cloudinary      Image/video uploads
+Video Stitching         FFmpeg                  Combine contributor clips
+Containerization        Docker Compose          One-command startup
+
+4. MODULE BREAKDOWN
+--------------------------------------------------------------------------------
+
+Module 1: User System and Authentication
+  - Registration with age verification (date of birth)
+  - Login with JWT tokens
+  - Profile: display name, bio, interests, privacy settings
+  - Audience controls: public, followers-only, private
+  - Account verification status
+  Files: backend/routes/auth.js, backend/models/User.js,
+         backend/middleware/auth.js
+
+Module 2: Interest Modes
+  - Predefined interest categories:
+    Science, Technology, Sports, Art, Music, Entertainment,
+    Personal Stories, Social Causes, Education, Gaming, Food, Travel
+  - Users select multiple interests with weight sliders (0-100)
+  - Save multiple interest presets ("Morning Learning", "Evening Relax")
+  - Quick-switch between presets from feed header
+  - Feed algorithm uses weights to score and rank content
+  Files: backend/routes/interests.js, backend/models/InterestProfile.js,
+         frontend/src/components/InterestSelector.jsx
+
+Module 3: Focus Modes
+  Three modes that modify feed behavior:
+
+  a) Learning Mode
+    - Prioritize explanatory, long-form, and educational content
+    - Boost posts with citations, tutorials, how-to format
+    - Reduce memes, short reactions, entertainment
+    - Show "Related Topics" sidebar for deeper exploration
+
+  b) Discovery Mode
+    - Introduce content outside the user's normal interests
+    - Surface diverse perspectives and unfamiliar creators
+    - "Exploration dial" controls how far from interests to go
+    - Never surface content that fails safety checks
+
+  c) Creation Mode
+    - Opens collaborative workspace for a specific topic/event
+    - Invite contributors, set submission guidelines
+    - Review and approve contributions before inclusion
+    - Video stitching tool (FFmpeg) combines approved clips
+    - Published result credits all contributors with consent
+
+  Files: backend/services/feedEngine.js, backend/services/focusModes.js,
+         frontend/src/components/FocusModeToggle.jsx,
+         frontend/src/pages/CollabWorkspace.jsx
+
+Module 4: Feed Engine
+  - Input: user's interest weights + active focus mode + safety filters
+  - Scoring formula:
+    score = (interest_match * weight) + (focus_mode_boost) + (recency)
+            - (safety_penalty) - (seen_penalty)
+  - No engagement-maximization signals (no clickbait boost)
+  - Pagination with cursor-based infinite scroll
+  - Transparency: each post carries a "Why this post?" tooltip
+    showing which interests matched and what boosted/lowered it
+  Files: backend/services/feedEngine.js, backend/services/scorer.js
+
+Module 5: AI Content Detection (Python Service)
+  - Image analysis: detect AI-generated images using pretrained classifier
+    (e.g., Hugging Face AI-image-detector models)
+  - Text analysis: detect AI-generated text using perplexity and burstiness
+    metrics or pretrained detector
+  - Video: frame sampling + per-frame AI detection + aggregation
+  - Output: AI probability score (0-1) per content piece
+  - If score > threshold: visible "AI-Generated" or "AI-Assisted" tag
+  - Tags are non-removable, shown in feed and detail view
+  Files: ai_services/ai_detector.py, ai_services/image_detector.py,
+         ai_services/text_detector.py
+
+Module 6: Content Moderation
+  - Layer 1: Automated screening at upload time
+    - OpenAI Moderation API (free) for: hate, violence, sexual, self-harm
+    - Custom keyword filters for spam and scam patterns
+    - Image NSFW classifier (pretrained model)
+  - Layer 2: Community moderation
+    - Borderline content queued for human moderator review
+    - Moderator dashboard with approve/reject/flag options
+    - Structured reporting: users select reason category + description
+  - Layer 3: Appeals
+    - Users can appeal any moderation decision
+    - Appeal reviewed by different moderator
+    - Full audit trail of decisions
+  Files: backend/services/moderation.js, ai_services/content_filter.py,
+         frontend/src/pages/ModeratorDashboard.jsx
+
+Module 7: Bot and Manipulation Detection (Python Service)
+  - Feature extraction per account:
+    - Account age, posting frequency, follower/following ratio
+    - Content diversity (unique words, topic variance)
+    - Interaction patterns (time between actions, coordination)
+    - Engagement anomalies (sudden like spikes)
+  - Gradient-boosted classifier trained on labeled bot datasets
+  - Coordinated behavior detection: cluster accounts acting in sync
+  - Flagged accounts: reduced visibility, human review required
+  Files: ai_services/bot_detector.py, ai_services/coordination.py
+
+Module 8: Child Safety
+  - Age-gated content tiers (under 13 restricted, 13-17 filtered, 18+)
+  - Under-18 accounts:
+    - No direct messages from non-mutual followers
+    - Stricter content filters active
+    - Location sharing disabled
+    - No targeted content from advertisers
+  - Parent/guardian link option for under-16 accounts
+  Files: backend/middleware/childSafety.js, backend/services/ageGate.js
+
+Module 9: Transparency and Reporting
+  - "Why this post?" — click to see scoring breakdown
+  - "Why was this removed?" — moderation reason visible to author
+  - Report flow: structured form (harassment, misinformation, spam,
+    AI-content not labeled, undisclosed ad, other)
+  - Appeal flow: submit reason, reviewed within queue
+  - Audit log: all moderation actions, feed ranking decisions logged
+  Files: backend/services/transparency.js,
+         frontend/src/components/WhyThisPost.jsx,
+         frontend/src/components/ReportModal.jsx
+
+Module 10: Admin Dashboard
+  - Platform statistics: active users, posts per day, moderation volume
+  - Moderation queue management
+  - Bot detection alerts and review
+  - Content policy configuration
+  - User management (verify, suspend, ban)
+  Files: frontend/src/pages/AdminDashboard.jsx
+
+5. DEVELOPMENT PHASES
+--------------------------------------------------------------------------------
+
+Phase 1 — Foundation (Days 1-4)
+  - Project setup: React + Node.js + MongoDB + Redis + Docker
+  - User registration and authentication (JWT)
+  - Basic post creation (text + image upload)
+  - Simple chronological feed
+  - Deliverable: users can sign up, post, and see a feed
+
+Phase 2 — Interest and Focus Modes (Days 5-9)
+  - Interest category system with weight sliders
+  - Interest preset saving and switching
+  - Feed scoring algorithm based on interests
+  - Focus mode toggle (learning / discovery / creation)
+  - "Why this post?" transparency tooltip
+  - Deliverable: personalized, mode-aware feed
+
+Phase 3 — Collaborative Creation (Days 10-13)
+  - Collaborative workspace creation
+  - Contributor invitation and submission flow
+  - Moderator review and approval of contributions
+  - Video stitching with FFmpeg (combine approved clips)
+  - Contributor consent and credit display
+  - Deliverable: working collaborative content pipeline
+
+Phase 4 — AI Safety Services (Days 14-18)
+  - Deploy AI content detector (Python Flask service)
+  - Deploy content moderation pipeline
+  - Deploy bot detection classifier
+  - Integrate all three into post upload and feed pipeline
+  - Visible AI-generated labels on detected content
+  - Deliverable: automated safety layer active
+
+Phase 5 — Child Safety and Moderation UI (Days 19-22)
+  - Age-gated content tiers
+  - Under-18 account restrictions
+  - Moderator dashboard with queue, approve/reject, appeals
+  - User reporting flow with structured form
+  - Deliverable: full moderation and child safety system
+
+Phase 6 — Admin, Polish, and Demo (Days 23-27)
+  - Admin dashboard with platform stats
+  - End-to-end testing of all user journeys
+  - Mobile-responsive design check
+  - Performance optimization
+  - Record demo video
+  - Deliverable: polished, demo-ready platform
+
+6. TESTING AND EVALUATION
+--------------------------------------------------------------------------------
+
+User Journey Tests:
+  1. New user signs up, selects interests, sees relevant feed
+  2. User switches focus mode — feed content changes accordingly
+  3. User creates collaborative workspace, invites contributors
+  4. Contributor submits clip, moderator approves, video stitched
+  5. AI-generated image uploaded — AI label appears automatically
+  6. User reports a post — appears in moderator queue
+  7. Under-18 user cannot access restricted content or DMs
+  8. User clicks "Why this post?" — sees ranking explanation
+  9. Bot account detected — flagged for review
+  10. User appeals moderation decision — reviewed by different moderator
+
+Safety Tests:
+  - Upload AI-generated image: detected and labeled
+  - Upload harmful text: blocked by moderation
+  - Create bot-like behavior: flagged by bot detector
+  - Under-18 user tries restricted features: blocked
+
+Performance Targets:
+  - Feed load time: < 2 seconds
+  - Interest mode switch: < 1 second feed refresh
+  - AI detection latency: < 3 seconds per upload
+  - Support 100+ concurrent users in demo
+
+7. DEMO PLAN
+--------------------------------------------------------------------------------
+1. Create two user accounts with different interests (Science vs Sports)
+2. Show each user getting a completely different feed
+3. Switch to Learning Mode — feed shifts to educational content
+4. Switch to Discovery Mode — unfamiliar but safe content appears
+5. Open collaborative workspace — invite second user as contributor
+6. Second user submits a video clip — moderator approves — stitched video published
+7. Upload an AI-generated image — show AI label appearing automatically
+8. Post something borderline — show it going to moderation queue
+9. Click "Why this post?" on any feed item — show transparency breakdown
+10. Show admin dashboard with platform health metrics
+11. Demonstrate child safety: restricted account cannot access adult content
+
+8. DELIVERABLES MAPPING (vs Challenge Statement)
+--------------------------------------------------------------------------------
+[x] Interest Modes: users select, combine, and switch interest categories
+[x] Focus Modes: learning, discovery, creation modes demonstrated
+[x] Relevant content feeds based on interests (not engagement maximization)
+[x] Interest-based communities
+[x] Collaborative video stitching with moderator control and contributor consent
+[x] AI-content labeling for images, text, video
+[x] Harmful content moderation (automated + community moderators)
+[x] Bot and manipulated engagement detection
+[x] Child safety controls (age-gated content, restricted DMs)
+[x] Privacy and audience settings
+[x] Contributor consent mechanism
+[x] Modular architecture with secure APIs
+[x] Administrator dashboard
+[x] Key user journeys demonstrated
+[x] Reduces unwanted distractions while allowing discovery
+[x] Transparency: users can see and question feed/moderation decisions

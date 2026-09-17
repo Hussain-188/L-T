@@ -1,0 +1,229 @@
+================================================================================
+BUILD PLAN: MedVoxel — Patient-Specific 3D Anatomical Reconstruction from DICOM
+================================================================================
+
+1. PROJECT OVERVIEW
+--------------------------------------------------------------------------------
+An automated pipeline that takes standard DICOM image series (CT/MRI),
+reconstructs a geometrically accurate 3D volume, segments anatomical structures
+using deep learning, generates smooth surface meshes, and presents everything
+through an interactive browser-based 3D viewer.
+
+2. ARCHITECTURE
+--------------------------------------------------------------------------------
+
+  [DICOM Image Series (CT/MRI files)]
+              |
+  [Stage 1: DICOM Loader]
+    - Read DICOM files, extract metadata
+    - Sort slices by position, handle gaps
+    - Build raw volume array
+              |
+  [Stage 2: Preprocessor]
+    - Intensity normalization (windowing)
+    - Isotropic resampling
+    - Noise reduction (Gaussian/median)
+    - Orientation standardization
+              |
+  [Stage 3: AI Segmentation]
+    - MONAI pretrained model (e.g., SwinUNETR)
+    - Per-voxel classification into anatomical regions
+    - Confidence map generation
+    - Post-processing: connected components, hole filling
+              |
+  [Stage 4: Mesh Generation]
+    - Marching cubes algorithm per segmented region
+    - Laplacian smoothing for visual quality
+    - Mesh decimation to reduce triangle count
+    - Watertight mesh validation
+              |
+  [Stage 5: Interactive 3D Viewer]
+    - Web-based (Three.js or VTK.js)
+    - Load, rotate, zoom, pan
+    - Toggle individual structures on/off
+    - Cross-section slicing planes
+    - Distance measurement tool
+    - Export mesh as STL/OBJ
+              |
+  [Stage 6: Validation]
+    - Dice Similarity Coefficient vs ground truth
+    - Hausdorff Distance for surface accuracy
+    - Visual comparison with reference annotations
+
+
+3. TECH STACK
+--------------------------------------------------------------------------------
+Component               Technology              Why
+---                     ---                     ---
+DICOM Handling          pydicom + SimpleITK     Industry standard DICOM libraries
+Preprocessing           SimpleITK + NumPy       Medical image processing toolkit
+AI Segmentation         MONAI (PyTorch-based)   Pretrained medical imaging models
+Mesh Generation         scikit-image             Marching cubes implementation
+                        + PyMeshFix             Mesh repair and smoothing
+3D Visualization        Three.js                Browser-based 3D rendering
+Backend API             Python Flask / FastAPI   Serve processed data to frontend
+Frontend                React + Three.js         Interactive web application
+Data Storage            File system + SQLite     DICOM files + metadata index
+Dataset                 TCIA (Cancer Imaging     Free, annotated, public
+                        Archive)
+
+4. MODULE BREAKDOWN
+--------------------------------------------------------------------------------
+
+Module 1: DICOM Loader
+  - Read folder of .dcm files using pydicom
+  - Extract metadata: PatientID, Modality, SliceThickness, PixelSpacing,
+    ImageOrientationPatient, ImagePositionPatient, RescaleSlope/Intercept
+  - Sort slices by ImagePositionPatient along the scan axis
+  - Detect and handle: missing slices, irregular spacing, multiple series
+  - Output: 3D NumPy array + metadata dictionary
+  Files: pipeline/dicom_loader.py
+
+Module 2: Preprocessor
+  - Apply RescaleSlope and RescaleIntercept for Hounsfield units (CT)
+  - Window/level adjustment (e.g., bone window, soft tissue window)
+  - Resample to isotropic voxel size using SimpleITK
+  - Apply Gaussian smoothing for noise reduction
+  - Standardize orientation to RAS (Right-Anterior-Superior)
+  Files: pipeline/preprocessor.py
+
+Module 3: AI Segmentation
+  - Load pretrained MONAI model (SwinUNETR or UNet for organ segmentation)
+  - Run sliding window inference on the preprocessed volume
+  - Generate per-voxel labels for each anatomical structure
+  - Generate confidence/probability maps
+  - Post-process: remove small disconnected components, fill holes
+  - Support multiple anatomy types: abdomen organs, chest, bone
+  Files: pipeline/segmentation.py, models/monai_wrapper.py
+
+Module 4: Mesh Generator
+  - For each segmented label, extract binary mask
+  - Apply marching cubes (scikit-image) to produce triangulated surface
+  - Smooth mesh with Laplacian smoothing (10-30 iterations)
+  - Decimate mesh to target triangle count (keep under 500K per structure)
+  - Validate mesh is watertight, repair if needed (PyMeshFix)
+  - Export as STL, OBJ, and GLB (for web viewer)
+  Files: pipeline/mesh_generator.py, pipeline/mesh_utils.py
+
+Module 5: Interactive 3D Viewer (Web)
+  - React application with Three.js for 3D rendering
+  - Load GLB meshes via HTTP from backend
+  - Controls: orbit, zoom, pan (OrbitControls)
+  - Structure panel: toggle visibility of each anatomical region
+  - Color coding: each structure has a distinct, adjustable color
+  - Clipping planes: slice through the model at any angle
+  - Measurement tool: click two points to measure distance
+  - Screenshot and STL export buttons
+  Files: frontend/src/components/Viewer3D.jsx, StructurePanel.jsx,
+         MeasureTool.jsx, ClippingPlane.jsx
+
+Module 6: Validation and Metrics
+  - Load ground truth segmentation masks (from TCIA annotations)
+  - Compute Dice Similarity Coefficient per structure
+  - Compute 95th percentile Hausdorff Distance
+  - Compute volume comparison (predicted vs ground truth in mL)
+  - Generate validation report with per-structure accuracy table
+  Files: validation/metrics.py, validation/report.py
+
+5. DEVELOPMENT PHASES
+--------------------------------------------------------------------------------
+
+Phase 1 — DICOM Loading and Volume Reconstruction (Days 1-4)
+  - Download sample DICOM datasets from TCIA
+  - Build DICOM loader with metadata extraction
+  - Handle slice sorting, gaps, orientation
+  - Verify correct volume reconstruction (compare with 3D Slicer)
+  - Deliverable: raw 3D volume from DICOM
+
+Phase 2 — Preprocessing Pipeline (Days 5-7)
+  - Implement HU conversion, windowing, resampling
+  - Test with CT (abdomen) and MRI datasets
+  - Validate spatial accuracy after resampling
+  - Deliverable: clean, isotropic volume ready for segmentation
+
+Phase 3 — AI Segmentation (Days 8-12)
+  - Set up MONAI environment with pretrained weights
+  - Implement sliding window inference
+  - Test on TCIA datasets with known ground truth
+  - Post-processing: connected components, hole filling
+  - Compute initial Dice scores
+  - Deliverable: labeled segmentation masks
+
+Phase 4 — Mesh Generation (Days 13-16)
+  - Implement marching cubes extraction
+  - Add smoothing and decimation
+  - Validate mesh quality (watertight, reasonable triangle count)
+  - Export in multiple formats (STL, OBJ, GLB)
+  - Deliverable: surface meshes for each anatomical structure
+
+Phase 5 — Interactive 3D Viewer (Days 17-21)
+  - React + Three.js project setup
+  - Load and render meshes with structure toggle
+  - Add clipping planes, measurement tool
+  - Add color customization and screenshot export
+  - Connect to backend API for dataset selection
+  - Deliverable: working web-based 3D anatomical viewer
+
+Phase 6 — Validation and Presentation (Days 22-25)
+  - Run full pipeline on 5+ TCIA datasets
+  - Compute Dice and Hausdorff metrics
+  - Generate validation report
+  - Record demo video of complete workflow
+  - Prepare presentation slides
+  - Deliverable: validation report + polished demo
+
+6. TESTING AND EVALUATION
+--------------------------------------------------------------------------------
+
+Test Case                          Expected Outcome
+---                                ---
+CT abdomen (regular spacing)       Correct volume, all organs segmented
+CT chest (thick slices, 5mm)       Resampling handles spacing, lung segmented
+MRI brain (oblique orientation)    Orientation corrected, structures visible
+Dataset with missing slices        Gap detected, interpolated or warned
+Segmentation vs ground truth       Dice > 0.80 for major organs
+Mesh triangle count                Under 500K per structure
+3D viewer performance              Smooth 30+ FPS rotation in browser
+Full pipeline runtime              Under 5 minutes per dataset
+
+Validation Metrics:
+  - Dice Similarity Coefficient (target: > 0.80 for major structures)
+  - 95th percentile Hausdorff Distance (target: < 5mm)
+  - Volume accuracy (within 10% of ground truth)
+  - Mesh quality: manifold, watertight, smooth
+
+7. DEMO PLAN
+--------------------------------------------------------------------------------
+1. Start with raw DICOM folder — show slice count and metadata
+2. Run pipeline — show each stage completing with progress
+3. Display 2D slice view with segmentation overlay
+4. Switch to 3D viewer — rotate the reconstructed anatomy
+5. Toggle individual organs on/off (liver, kidneys, spine, etc.)
+6. Use clipping plane to slice through the model
+7. Measure a distance between two anatomical landmarks
+8. Show validation metrics: Dice scores per structure
+9. Compare with another patient dataset to show generalization
+
+8. DELIVERABLES MAPPING (vs Challenge Statement)
+--------------------------------------------------------------------------------
+[x] Processing DICOM image data
+[x] DICOM metadata handling, slice ordering and alignment
+[x] 3D volume reconstruction
+[x] Anatomical structure segmentation (deep learning)
+[x] Mesh generation and validation
+[x] Interactive visualization of reconstructed model
+[x] Measurable accuracy and performance results (Dice, Hausdorff)
+[x] Proposed methodology and system architecture
+[x] Validation approach and test results
+[x] Identified limitations
+[x] Demonstration using representative medical imaging datasets (TCIA)
+
+9. PUBLIC DATASETS AVAILABLE
+--------------------------------------------------------------------------------
+- TCIA (The Cancer Imaging Archive): https://www.cancerimagingarchive.net/
+  - CT Abdomen datasets with organ annotations
+  - CT Chest datasets
+  - Various annotated collections
+- Medical Segmentation Decathlon: multi-organ segmentation benchmark
+- NIH Pancreas-CT Dataset: 82 abdominal CT scans
+- All freely available for research and academic use
